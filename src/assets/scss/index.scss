@@ -1,0 +1,27 @@
+@import './element-custom.scss';
+@import './variable/index.scss';
+
+body * {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: element-icons !important;
+    background-color: #F7F7F7;
+    overflow: hidden;
+    margin: 0;
+    line-height: 1.15;
+    font-variant: normal;
+    width: 100% !important;
+
+    .layout-middle {
+        overflow-y: auto;
+    }
+}
+
+*:focus {
+    outline: none;
+}
+  

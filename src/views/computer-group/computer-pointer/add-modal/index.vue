@@ -42,15 +42,14 @@
             <el-form-item label="密码" prop="password">
                 <el-input
                     v-model="formData.password"
-                    maxlength="20"
+                    type="password"
                     placeholder="请输入"
-                    show-word-limit
                 />
             </el-form-item>
             <el-form-item label="YunHome" prop="agentHomePath">
                 <el-input
                     v-model="formData.agentHomePath"
-                    maxlength="20"
+                    maxlength="100"
                     placeholder="请输入"
                     show-word-limit
                 />
@@ -66,7 +65,7 @@
             <el-form-item label="Hadoop" prop="hadoopHomePath">
                 <el-input
                     v-model="formData.hadoopHomePath"
-                    maxlength="20"
+                    maxlength="100"
                     placeholder="请输入"
                     show-word-limit
                 />

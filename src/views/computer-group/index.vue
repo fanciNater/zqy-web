@@ -14,7 +14,7 @@
                 />
             </div>
         </div>
-        <Loading :visible="loading" :networkError="networkError" @loading-refresh="initData">
+        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData">
             <div class="zqy-table">
                 <BlockTable
                     :tableConfig="tableConfig"
@@ -32,14 +32,15 @@
                     <template v-slot:options="scopeSlot">
                         <div class="btn-group">
                             <span @click="editData(scopeSlot.row)">编辑</span>
-                            <span @click="checkData(scopeSlot.row)">检测</span>
+                            <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
+                            <el-icon v-else class="is-loading"><Loading /></el-icon>
                             <span @click="showPointDetail(scopeSlot.row)">节点</span>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
                         </div>
                     </template>
                 </BlockTable>
             </div>
-        </Loading>
+        </LoadingPage>
         <AddModal ref="addModalRef"></AddModal>
     </div>
 </template>
@@ -48,7 +49,7 @@
 import { reactive, ref, getCurrentInstance, onMounted } from "vue";
 import Breadcrumb from "@/layout/bread-crumb/index.vue"
 import BlockTable from "@/components/block-table/index.vue"
-import Loading from '@/components/loading/index.vue'
+import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
 import { BreadCrumbList, TableConfig, FormData } from "./computer-group.config";
@@ -117,12 +118,15 @@ function editData(data: any) {
 
 // 检测
 function checkData(data: any) {
+    data.checkLoading = true
     CheckComputerGroupData({
         engineId: data.id
     }).then((res: any) => {
+        data.checkLoading = false
         ElMessage.success(res.msg)
         initData()
     }).catch((error: any) => {
+        data.checkLoading = false
     })
 }
 

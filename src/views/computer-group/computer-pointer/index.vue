@@ -1,7 +1,7 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-04-27 16:57:57
- * @LastEditTime: 2023-04-29 21:34:49
+ * @LastEditTime: 2023-05-03 21:38:13
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/views/computer-group/computer-pointer/index.vue
@@ -40,8 +40,10 @@
                         <div class="btn-group">
                             <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
                             <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            <span @click="installData(scopeSlot.row)">安装</span>
-                            <span @click="uninstallData(scopeSlot.row)">卸载</span>
+                            <span v-if="!scopeSlot.row.installLoading" @click="installData(scopeSlot.row)">安装</span>
+                            <el-icon v-else class="is-loading"><Loading /></el-icon>
+                            <span v-if="!scopeSlot.row.uninstallLoading" @click="uninstallData(scopeSlot.row)">卸载</span>
+                            <el-icon v-else class="is-loading"><Loading /></el-icon>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
                         </div>
                     </template>
@@ -60,7 +62,7 @@ import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
 import { PointTableConfig, FormData } from "../computer-group.config";
-import { GetComputerPointData, CheckComputerPointData, AddComputerPointData } from '@/services/computer-group.service'
+import { GetComputerPointData, CheckComputerPointData, AddComputerPointData, InstallComputerPointData, UninstallComputerPointData, DeleteComputerPointData } from '@/services/computer-group.service'
 import { reject } from "lodash"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { useRoute } from 'vue-router'
@@ -109,7 +111,10 @@ function initData(tableLoading?: boolean) {
 function addData() {
     addModalRef.value.showModal((formData: FormData) => {
         return new Promise((resolve: any, reject: any) => {
-            AddComputerPointData(formData).then((res: any) => {
+            AddComputerPointData({
+                ...formData,
+                calculateEngineId: route.query.id
+            }).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -121,25 +126,31 @@ function addData() {
 }
 
 // 安装
-function installData() {
-    // AddComputerGroupData(formData).then((res: any) => {
-    //     ElMessage.success(res.msg)
-    //     initData()
-    //     resolve()
-    // }).catch((error: any) => {
-    //     reject(error);
-    // })
+function installData(data: any) {
+    data.installLoading = true
+    InstallComputerPointData({
+        engineNodeId: data.id
+    }).then((res: any) => {
+        ElMessage.success(res.msg)
+        data.installLoading = false
+        initData()
+    }).catch((error: any) => {
+        data.installLoading = false
+    })
 }
 
 // 卸载
 function uninstallData(data: any) {
-    // UpdateComputerGroupData(formData).then((res: any) => {
-    //     ElMessage.success(res.msg)
-    //     initData()
-    //     resolve()
-    // }).catch((error: any) => {
-    //     reject(error);
-    // })
+    data.uninstallLoading = true
+    UninstallComputerPointData({
+        engineNodeId: data.id
+    }).then((res: any) => {
+        ElMessage.success(res.msg)
+        data.uninstallLoading = false
+        initData()
+    }).catch((error: any) => {
+        data.uninstallLoading = false
+    })
 }
 
 // 检测
@@ -158,18 +169,18 @@ function checkData(data: any) {
 
 // 删除
 function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该集群吗？', '警告', {
+    ElMessageBox.confirm('确定删除该节点吗？', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
     }).then(() => {
-        // DeleteComputerGroupData({
-        //     engineId: data.id
-        // }).then((res: any) => {
-        //     ElMessage.success(res.msg)
-        //     initData()
-        // }).catch((error: any) => {
-        // })
+        DeleteComputerPointData({
+            engineNodeId: data.id
+        }).then((res: any) => {
+            ElMessage.success(res.msg)
+            initData()
+        }).catch((error: any) => {
+        })
     })
 }
 

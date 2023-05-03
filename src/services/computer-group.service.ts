@@ -1,7 +1,7 @@
 /*
  * @Author: fanciNate
  * @Date: 2023-04-26 17:01:16
- * @LastEditTime: 2023-04-29 21:34:08
+ * @LastEditTime: 2023-05-03 21:36:23
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/services/computer-group.service.ts
@@ -92,10 +92,37 @@ export function UpdateComputerPointData(params: any): Promise<any> {
 }
 
 // 添加节点数据
-export function AddComputerPointData(params: AddParams): Promise<any> {
+export function AddComputerPointData(params: any): Promise<any> {
     return http.request({
         method: 'post',
         url: '/eno/addNode',
+        params: params
+    });
+}
+
+// 添加节点数据
+export function DeleteComputerPointData(params: any): Promise<any> {
+    return http.request({
+        method: 'get',
+        url: '/eno/delNode',
+        params: params
+    });
+}
+
+// 安装节点数据
+export function InstallComputerPointData(params: any): Promise<any> {
+    return http.request({
+        method: 'get',
+        url: '/eno/installAgent',
+        params: params
+    });
+}
+
+// 卸载节点数据
+export function UninstallComputerPointData(params: any): Promise<any> {
+    return http.request({
+        method: 'get',
+        url: '/eno/removeAgent',
         params: params
     });
 }

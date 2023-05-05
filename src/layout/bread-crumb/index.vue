@@ -9,7 +9,7 @@
 <template>
     <el-breadcrumb class="zqy-breadcrumb" :separator-icon="ArrowRight">
         <template v-for="bread in breadCrumbList" :key="bread.code">
-            <el-breadcrumb-item v-if="!bread.hidden" :replace="true" :to="{ name: bread.code }">{{
+            <el-breadcrumb-item v-if="!bread.hidden" :replace="true" :to="{ name: bread.code, query: bread.query ? bread.query : null }">{{
                 bread.name
             }}</el-breadcrumb-item>
         </template>
@@ -23,7 +23,8 @@ import { defineProps, withDefaults } from "vue";
 interface BreadCrumb {
     name: string
     code: string
-    hidden?: boolean
+    hidden?: boolean,
+    query?: any
 }
 
 withDefaults(defineProps<{

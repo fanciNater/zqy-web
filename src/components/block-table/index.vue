@@ -56,7 +56,7 @@
         :total="tableConfig.pagination.total"
         :page-size="tableConfig.pagination.pageSize"
         :current-page="tableConfig.pagination.currentPage"
-        :page-sizes="[10, 20, 30, 50]"
+        :page-sizes="[10, 20]"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
     />

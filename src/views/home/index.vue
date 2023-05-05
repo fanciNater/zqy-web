@@ -24,7 +24,7 @@ import { menu, MenuListData } from './home.config'
 import { useRouter, useRoute } from 'vue-router';
 
 const menuListData: Array<menu> = reactive(MenuListData)
-const defaultMenu = ref('home')
+const defaultMenu = ref('')
 const router = useRouter()
 const route = useRoute()
 
@@ -36,31 +36,12 @@ const select = (e: string) => {
 const { proxy } = getCurrentInstance();
 
 onMounted(() => {
-    console.log('useRoute', route.name)
     defaultMenu.value = route.name
 })
-
-onMounted(() => {
-    // setTimeout(() => {
-    //     proxy.$request({
-    //         url: '/usr/login',
-    //         method: 'post',
-    //         params: {
-    //             account: 'admin',
-    //             passwd: 'admin123'
-    //         }
-    //     }).then((res: any) => {
-    //         console.log(res)
-    //     }).catch(err => {
-    //         // console.log('err',err)
-    //     })
-    // }, 1000);
-});
 </script>
 
 <style lang="scss">
 .zqy-home {
-    color: $--app-click-color;
     width: 100%;
     .home-container {
         width: 100%;

@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, getCurrentInstance, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import Breadcrumb from "@/layout/bread-crumb/index.vue"
 import BlockTable from "@/components/block-table/index.vue"
 import LoadingPage from '@/components/loading/index.vue'
@@ -204,43 +204,3 @@ onMounted(() => {
     initData()
 })
 </script>
-
-<style lang="scss">
-.zqy-seach-table {
-    .zqy-loading {
-        height: calc(100vh - 176px);
-    }
-    .zqy-table-top {
-        height: 60px;
-        display: flex;
-        padding-left: 20px;
-        padding-right: 20px;
-        box-sizing: border-box;
-        align-items: center;
-        justify-content: space-between;
-        .zqy-seach {
-            .el-input {
-                width: 300px;
-            }
-        }
-    }
-    .zqy-table {
-        padding: 0 20px;
-        .vxe-table--body-wrapper {
-            max-height: calc(100vh - 292px);
-        }
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            span {
-                cursor: pointer;
-                color: $--app-unclick-color;
-                &:hover {
-                    color: $--app-primary-color;
-                }
-            }
-        }
-    }
-}
-</style>

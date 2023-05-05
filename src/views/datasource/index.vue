@@ -2,11 +2,11 @@
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
     <div class="zqy-seach-table" >
         <div class="zqy-table-top">
-            <el-button type="primary" @click="addGroup">添加集群</el-button>
+            <el-button type="primary" @click="addData">添加数据源</el-button>
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
-                    placeholder="请输入集群名称/备注 回车进行搜索"
+                    placeholder="请输入名称/类型/连接信息/用户名/备注 回车进行搜索"
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
@@ -34,7 +34,6 @@
                             <span @click="editData(scopeSlot.row)">编辑</span>
                             <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
                             <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            <span @click="showPointDetail(scopeSlot.row)">节点</span>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
                         </div>
                     </template>
@@ -46,16 +45,15 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
-import Breadcrumb from "@/layout/bread-crumb/index.vue"
-import BlockTable from "@/components/block-table/index.vue"
+import { reactive, ref, getCurrentInstance, onMounted } from 'vue'
+import Breadcrumb from '@/layout/bread-crumb/index.vue'
+import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
-import { BreadCrumbList, TableConfig, FormData } from "./computer-group.config";
-import { GetComputerGroupList, AddComputerGroupData, UpdateComputerGroupData, CheckComputerGroupData, DeleteComputerGroupData } from '@/services/computer-group.service'
-import { reject } from "lodash"
-import { ElMessage, ElMessageBox } from "element-plus"
+import { BreadCrumbList, TableConfig, FormData } from './datasource.config'
+import { GetDatasourceList, AddDatasourceData, UpdateDatasourceData, CheckDatasourceData, DeleteDatasourceData } from '@/services/datasource.service'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -69,7 +67,7 @@ const addModalRef = ref(null)
 function initData(tableLoading?: boolean) {
     loading.value = true
     networkError.value = networkError.value || false;
-    GetComputerGroupList({
+    GetDatasourceList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
         searchContent: keyword.value,
@@ -88,10 +86,10 @@ function initData(tableLoading?: boolean) {
     });
 }
 
-function addGroup() {
+function addData() {
     addModalRef.value.showModal((formData: FormData) => {
         return new Promise((resolve: any, reject: any) => {
-            AddComputerGroupData(formData).then((res: any) => {
+            AddDatasourceData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -105,7 +103,7 @@ function addGroup() {
 function editData(data: any) {
     addModalRef.value.showModal((formData: FormData) => {
         return new Promise((resolve: any, reject: any) => {
-            UpdateComputerGroupData(formData).then((res: any) => {
+            UpdateDatasourceData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -119,8 +117,8 @@ function editData(data: any) {
 // 检测
 function checkData(data: any) {
     data.checkLoading = true
-    CheckComputerGroupData({
-        engineId: data.id
+    CheckDatasourceData({
+        datasourceId: data.id
     }).then((res: any) => {
         data.checkLoading = false
         ElMessage.success(res.msg)
@@ -130,22 +128,15 @@ function checkData(data: any) {
     })
 }
 
-// 查看节点
-function showPointDetail(data: any) {
-    router.push({ name: 'computer-pointer', query: {
-        id: data.id
-    } })
-}
-
 // 删除
 function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该集群吗？', '警告', {
+    ElMessageBox.confirm('确定删除该数据源吗？', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
     }).then(() => {
-        DeleteComputerGroupData({
-            engineId: data.id
+        DeleteDatasourceData({
+            datasourceId: data.id
         }).then((res: any) => {
             ElMessage.success(res.msg)
             initData()
@@ -174,42 +165,3 @@ onMounted(() => {
     initData()
 })
 </script>
-
-<style lang="scss">
-.zqy-seach-table {
-    .zqy-loading {
-        height: calc(100vh - 176px);
-    }
-    .zqy-table-top {
-        height: 60px;
-        display: flex;
-        padding-left: 20px;
-        padding-right: 20px;
-        box-sizing: border-box;
-        align-items: center;
-        justify-content: space-between;
-        .zqy-seach {
-            .el-input {
-                width: 330px;
-            }
-        }
-    }
-    .zqy-table {
-        padding: 0 20px;
-        .vxe-table--body-wrapper {
-            max-height: calc(100vh - 292px);
-        }
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            span {
-                cursor: pointer;
-                color: $--app-unclick-color;
-                &:hover {
-                    color: $--app-primary-color;
-                }
-            }
-        }
-    }
-}
-</style>

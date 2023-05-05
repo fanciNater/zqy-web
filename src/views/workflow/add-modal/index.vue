@@ -9,7 +9,7 @@
             :model="formData"
             :rules="rules"
         >
-            <el-form-item label="集群名称" prop="name">
+            <el-form-item label="名称" prop="name">
                 <el-input
                     v-model="formData.name"
                     maxlength="20"
@@ -39,7 +39,7 @@ import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 const form = ref<FormInstance>()
 const callback = ref<any>()
 const modelConfig = reactive({
-    title: '添加集群',
+    title: '添加作业流',
     visible: false,
     width: '520px',
     okConfig: {
@@ -64,28 +64,28 @@ const formData = reactive({
 })
 const rules = reactive<FormRules>({
     name: [
-        { required: true, message: '请输入集群名称', trigger: ['blur', 'change'] }
+        { required: true, message: '请输入作业流名称', trigger: ['blur', 'change'] }
     ]
 })
 
 
 function showModal(cb: () => void, data: any): void {
     callback.value = cb
+    modelConfig.visible = true
     if (data) {
         formData.name = data.name
         formData.comment = data.comment
         formData.id = data.id
-        modelConfig.title = '编辑集群'
+        modelConfig.title = '编辑作业流'
     } else {
         formData.name = ''
         formData.comment = ''
         formData.id = ''
-        modelConfig.title = '添加集群'
+        modelConfig.title = '添加作业流'
     }
     nextTick(() => {
         form.value?.resetFields()
     })
-    modelConfig.visible = true
 }
 
 function okEvent() {
@@ -94,8 +94,7 @@ function okEvent() {
             modelConfig.okConfig.loading = true
             callback.value({
                 ...formData,
-                id: formData.id ? formData.id : undefined,
-                calculateEngineId: formData.id ? formData.id : undefined,
+                id: formData.id ? formData.id : undefined
             }).then((res: any) => {
                 modelConfig.okConfig.loading = false
                 if (res === undefined) {

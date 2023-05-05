@@ -38,12 +38,12 @@ const transform: AxiosTransform = {
     }
 
     // 统一处理后台返回的内容
-    const { code, data, message } = res.data;
+    const { code, data, msg } = res.data;
 
     // 接口请求成功
     if (code == ResultEnum.SUCCESS || code == ResultEnum.SUCCESS2) {
       // 提示成功信息
-      const successMsg = successMessageText || message || '操作成功！';
+      const successMsg = successMessageText || msg || '操作成功！';
       if (isShowMessage && isShowSuccessMessage) {
         showSuccessMessage(successMsg);
       }
@@ -54,7 +54,7 @@ const transform: AxiosTransform = {
     // 接口请求错误
     else {
       // 提示错误信息
-      const errorMsg = message || errorMessageText || '操作失败！';
+      const errorMsg = msg || errorMessageText || '操作失败！';
       if (isShowMessage && isShowErrorMessage) {
         showErrorMessage(errorMsg);
       }

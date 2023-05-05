@@ -2,11 +2,11 @@
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
     <div class="zqy-seach-table" >
         <div class="zqy-table-top">
-            <el-button type="primary" @click="addGroup">添加集群</el-button>
+            <el-button type="primary" @click="addGroup">添加作业流</el-button>
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
-                    placeholder="请输入集群名称/备注 回车进行搜索"
+                    placeholder="请输入名称/备注 回车进行搜索"
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
@@ -21,21 +21,24 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                 >
+                    <template v-slot:nameSlot="scopeSlot">
+                        <span class="name-click" @click="showDetail(scopeSlot.row)">{{ scopeSlot.row.name }}</span>
+                    </template>
                     <template v-slot:statusTag="scopeSlot">
                         <div class="btn-group">
                             <el-tag v-if="scopeSlot.row.status === 'ACTIVE'" class="ml-2" type="success">可用</el-tag>
                             <el-tag v-if="scopeSlot.row.status === 'NO_ACTIVE'" class="ml-2" type="danger">不可用</el-tag>
                             <el-tag v-if="scopeSlot.row.status === 'NEW'" type="info">待配置</el-tag>
                             <el-tag v-if="scopeSlot.row.status === 'UN_CHECK'">待检测</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'UN_AUTO'">未运行</el-tag>
                         </div>
                     </template>
                     <template v-slot:options="scopeSlot">
                         <div class="btn-group">
                             <span @click="editData(scopeSlot.row)">编辑</span>
-                            <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
-                            <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            <span @click="showPointDetail(scopeSlot.row)">节点</span>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
+                            <!-- <span v-if="!scopeSlot.row.pubLoading" @click="publishData(scopeSlot.row)">发布</span> -->
+                            <!-- <el-icon v-else class="is-loading"><Loading /></el-icon> -->
                         </div>
                     </template>
                 </BlockTable>
@@ -46,16 +49,15 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
-import Breadcrumb from "@/layout/bread-crumb/index.vue"
-import BlockTable from "@/components/block-table/index.vue"
+import { reactive, ref, onMounted } from 'vue'
+import Breadcrumb from '@/layout/bread-crumb/index.vue'
+import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
-import { BreadCrumbList, TableConfig, FormData } from "./computer-group.config";
-import { GetComputerGroupList, AddComputerGroupData, UpdateComputerGroupData, CheckComputerGroupData, DeleteComputerGroupData } from '@/services/computer-group.service'
-import { reject } from "lodash"
-import { ElMessage, ElMessageBox } from "element-plus"
+import { BreadCrumbList, TableConfig, FormData } from './workflow.config'
+import { GetWorkflowList, AddWorkflowData, UpdateWorkflowData, DeleteWorkflowData } from '@/services/workflow.service'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -69,7 +71,7 @@ const addModalRef = ref(null)
 function initData(tableLoading?: boolean) {
     loading.value = true
     networkError.value = networkError.value || false;
-    GetComputerGroupList({
+    GetWorkflowList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
         searchContent: keyword.value,
@@ -91,7 +93,7 @@ function initData(tableLoading?: boolean) {
 function addGroup() {
     addModalRef.value.showModal((formData: FormData) => {
         return new Promise((resolve: any, reject: any) => {
-            AddComputerGroupData(formData).then((res: any) => {
+            AddWorkflowData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -105,7 +107,7 @@ function addGroup() {
 function editData(data: any) {
     addModalRef.value.showModal((formData: FormData) => {
         return new Promise((resolve: any, reject: any) => {
-            UpdateComputerGroupData(formData).then((res: any) => {
+            UpdateWorkflowData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -116,42 +118,41 @@ function editData(data: any) {
     }, data)
 }
 
-// 检测
-function checkData(data: any) {
-    data.checkLoading = true
-    CheckComputerGroupData({
-        engineId: data.id
-    }).then((res: any) => {
-        data.checkLoading = false
-        ElMessage.success(res.msg)
-        initData()
-    }).catch((error: any) => {
-        data.checkLoading = false
-    })
-}
-
-// 查看节点
-function showPointDetail(data: any) {
-    router.push({ name: 'computer-pointer', query: {
-        id: data.id
-    } })
-}
+// TODO:本版本暂未实现
+// function publishData(data: any) {
+//     data.pubLoading = true
+//     CheckDatasourceData({
+//         datasourceId: data.id
+//     }).then((res: any) => {
+//         data.pubLoading = false
+//         ElMessage.success(res.msg)
+//         initData()
+//     }).catch((error: any) => {
+//         data.pubLoading = false
+//     })
+// }
 
 // 删除
 function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该集群吗？', '警告', {
+    ElMessageBox.confirm('确定删除该作业流吗？', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
     }).then(() => {
-        DeleteComputerGroupData({
-            engineId: data.id
+        DeleteWorkflowData({
+            datasourceId: data.id
         }).then((res: any) => {
             ElMessage.success(res.msg)
             initData()
         }).catch((error: any) => {
         })
     })
+}
+
+function showDetail(data: any) {
+    router.push({ name: 'workflow-detail', query: {
+        id: data.id
+    }})
 }
 
 function inputEvent(e: string) {
@@ -177,38 +178,11 @@ onMounted(() => {
 
 <style lang="scss">
 .zqy-seach-table {
-    .zqy-loading {
-        height: calc(100vh - 176px);
-    }
-    .zqy-table-top {
-        height: 60px;
-        display: flex;
-        padding-left: 20px;
-        padding-right: 20px;
-        box-sizing: border-box;
-        align-items: center;
-        justify-content: space-between;
-        .zqy-seach {
-            .el-input {
-                width: 330px;
-            }
-        }
-    }
-    .zqy-table {
-        padding: 0 20px;
-        .vxe-table--body-wrapper {
-            max-height: calc(100vh - 292px);
-        }
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            span {
-                cursor: pointer;
-                color: $--app-unclick-color;
-                &:hover {
-                    color: $--app-primary-color;
-                }
-            }
+    .name-click {
+        cursor: pointer;
+        color: $--app-unclick-color;
+        &:hover {
+            color: $--app-primary-color;
         }
     }
 }

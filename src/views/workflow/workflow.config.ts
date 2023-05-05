@@ -41,46 +41,24 @@ export interface FormData {
 
 export const BreadCrumbList: Array<BreadCrumb> = [
     {
-        name: '计算集群',
-        code: 'computer-group'
+        name: '作业流',
+        code: 'workflow'
     }
 ]
 
 export const colConfigs: colConfig[] = [
     {
         prop: "name",
-        title: "集群名称",
+        title: "作业流名称",
         minWidth: 100,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "node",
-        title: "可用/总节点数",
-        minWidth: 120,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "memory",
-        title: "已用/总内存",
-        minWidth: 120,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "storage",
-        title: "已用/总存储",
-        minWidth: 120,
+        customSlot: 'nameSlot',
         showOverflowTooltip: true
     },
     {
         prop: "status",
-        title: "状态",
+        title: "发布状态",
         minWidth: 100,
         customSlot: 'statusTag'
-    },
-    {
-        prop: "checkTime",
-        title: "检测时间",
-        minWidth: 140
     },
     {
         prop: "comment",
@@ -91,7 +69,7 @@ export const colConfigs: colConfig[] = [
         title: '操作',
         align: 'center',
         customSlot: 'options',
-        width: 140
+        width: 80
     }
 ]
 
@@ -107,35 +85,18 @@ export const TableConfig: TableConfig = {
     loading: false,
 }
 
-export const PointColConfigs: colConfig[] = [
+export const DetailColConfigs: colConfig[] = [
     {
         prop: "name",
-        title: "节点名称",
+        title: "作业名称",
+        minWidth: 120,
+        customSlot: 'nameSlot',
+        showOverflowTooltip: true
+    },
+    {
+        prop: "workType",
+        title: "类型",
         minWidth: 100,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "host",
-        title: "地址",
-        minWidth: 120,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "cpu",
-        title: "CPU占用率",
-        minWidth: 120,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "memory",
-        title: "已用/总内存",
-        minWidth: 120,
-        showOverflowTooltip: true
-    },
-    {
-        prop: "storage",
-        title: "已用/总存储",
-        minWidth: 120,
         showOverflowTooltip: true
     },
     {
@@ -145,8 +106,8 @@ export const PointColConfigs: colConfig[] = [
         customSlot: 'statusTag'
     },
     {
-        prop: "checkTime",
-        title: "检测时间",
+        prop: "createDateTime",
+        title: "创建时间",
         minWidth: 140
     },
     {
@@ -158,14 +119,13 @@ export const PointColConfigs: colConfig[] = [
         title: '操作',
         align: 'center',
         customSlot: 'options',
-        width: 140
+        width: 80
     }
 ]
 
-
-export const PointTableConfig: TableConfig = {
+export const DetailTableConfig: TableConfig = {
     tableData: [],
-    colConfigs: PointColConfigs,
+    colConfigs: DetailColConfigs,
     pagination: {
         currentPage: 1,
         pageSize: 10,

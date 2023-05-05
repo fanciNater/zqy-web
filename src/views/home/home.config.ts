@@ -14,5 +14,15 @@ export const MenuListData: Array<menu> = [
         code: 'computer-group',
         name: '计算集群',
         icon: 'UploadFilled',
+    },
+    {
+        code: 'datasource',
+        name: '数据源',
+        icon: 'DataLine',
+    },
+    {
+        code: 'workflow',
+        name: '作业流',
+        icon: 'Cpu',
     }
 ]

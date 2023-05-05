@@ -88,3 +88,9 @@
     }
   }
 }
+
+.el-select__popper {
+  .el-select-dropdown__item {
+    font-size: $--app-small-font-size;
+  }
+}

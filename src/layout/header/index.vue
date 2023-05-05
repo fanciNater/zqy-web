@@ -1,6 +1,15 @@
+<!--
+ * @Author: fanciNate
+ * @Date: 2023-05-05 15:04:54
+ * @LastEditTime: 2023-05-05 22:00:21
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/src/layout/header/index.vue
+-->
 <template>
     <div class="header">
         <div class="header-name">
+            <!-- <img src="../../assets/icons/logo.jpg" alt="至轻云"> -->
             至轻云
         </div>
         <div class="header-user">
@@ -34,12 +43,17 @@
     top: 0;
     left: 0;
     .header-name {
-        font-size: $--app-title-large-font-size;
+        font-size: $--app-logo-large-font-size;
         font-weight: $--app-base-font-weight;
         height: 100%;
         display: flex;
         align-items: center;
-        padding-left: 24px;
+        width: 200px;
+        justify-content: center;
+        color: $--app-primary-color;
+        // img {
+        //     height: 48px;
+        // }
     }
     .header-user {
         display: flex;

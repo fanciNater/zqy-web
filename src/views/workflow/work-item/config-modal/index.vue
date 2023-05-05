@@ -9,23 +9,15 @@
             :model="formData"
             :rules="rules"
         >
-            <el-form-item label="集群名称" prop="name">
-                <el-input
-                    v-model="formData.name"
-                    maxlength="20"
-                    placeholder="请输入"
-                    show-word-limit
-                />
-            </el-form-item>
-            <el-form-item label="备注">
-                <el-input
-                    show-word-limit
-                    type="textarea"
-                    v-model="formData.comment"
-                    maxlength="200"
-                    :autosize="{minRows: 4, maxRows: 4}"
-                    placeholder="请输入"
-                />
+            <el-form-item label="数据源" prop="datasourceId">
+                <el-select v-model="formData.datasourceId" placeholder="请选择">
+                    <el-option
+                        v-for="item in typeList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                    />
+                </el-select>
             </el-form-item>
         </el-form>
     </BlockModal>
@@ -35,11 +27,13 @@
 import { reactive, defineExpose, ref, nextTick } from 'vue'
 import BlockModal from '@/components/block-modal/index.vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
+import { GetDatasourceList } from '@/services/datasource.service'
 
 const form = ref<FormInstance>()
 const callback = ref<any>()
+const typeList = ref([])
 const modelConfig = reactive({
-    title: '添加集群',
+    title: '作业属性配置',
     visible: false,
     width: '520px',
     okConfig: {
@@ -58,34 +52,39 @@ const modelConfig = reactive({
     closeOnClickModal: false
 })
 const formData = reactive({
-    name: '',
-    comment: '',
-    id: ''
+    datasourceId: ''
 })
 const rules = reactive<FormRules>({
-    name: [
-        { required: true, message: '请输入集群名称', trigger: ['blur', 'change'] }
+    datasourceId: [
+        { required: true, message: '请选择数据源', trigger: ['blur', 'change'] }
     ]
 })
 
-
 function showModal(cb: () => void, data: any): void {
+    getDataSourceList()
     callback.value = cb
-    if (data) {
-        formData.name = data.name
-        formData.comment = data.comment
-        formData.id = data.id
-        modelConfig.title = '编辑集群'
-    } else {
-        formData.name = ''
-        formData.comment = ''
-        formData.id = ''
-        modelConfig.title = '添加集群'
-    }
+    modelConfig.visible = true
+    formData.datasourceId = data.datasourceId
     nextTick(() => {
         form.value?.resetFields()
     })
-    modelConfig.visible = true
+}
+
+function getDataSourceList() {
+    GetDatasourceList({
+        page: 0,
+        pageSize: 10000,
+        searchContent: '',
+    }).then((res: any) => {
+        typeList.value = res.data.content.map((item: any) => {
+            return {
+                label: item.name,
+                value: item.id
+            }
+        })
+    }).catch(() => {
+        typeList.value = []
+    });
 }
 
 function okEvent() {
@@ -93,9 +92,7 @@ function okEvent() {
         if (valid) {
             modelConfig.okConfig.loading = true
             callback.value({
-                ...formData,
-                id: formData.id ? formData.id : undefined,
-                calculateEngineId: formData.id ? formData.id : undefined,
+                ...formData
             }).then((res: any) => {
                 modelConfig.okConfig.loading = false
                 if (res === undefined) {

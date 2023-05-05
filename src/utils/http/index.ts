@@ -28,13 +28,14 @@ export const httpOption = {
     },
     requestOptions: {
         showSuccessMessage: (msg: string): void => {
-            console.log(msg)
+            console.log('123', msg)
         },
         showErrorMessage: (msg: string): void => {
             //   window['$message'].error(msg);
-            console.log(msg)
+            console.log('123', msg)
         },
         checkStatus: (status: number, msg: string, showMsg: any): void => {
+            console.log('hahah')
 
             try {
                 if (status == 401) {
@@ -49,9 +50,10 @@ export const httpOption = {
                     //     }
                     // });
                 } else {
-                    showMsg(msg);
+                    showMsg('2222', msg);
                 }
             } catch (error) {
+                console.log('2ddddd')
                 // console.log('err', error);
                 // router.replace({
                 //     name: LOGIN_NAME,

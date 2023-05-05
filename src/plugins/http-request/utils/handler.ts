@@ -1,3 +1,7 @@
+import { ElMessage } from 'element-plus'
+
+const message = ElMessage
+
 export interface ShowMessage {
   (msg: string): void;
 }
@@ -8,6 +12,7 @@ export interface CheckStatus {
 
 // 显示消息
 export const showMessage: ShowMessage = (msg) => {
+  message.error(msg)
   console.log(msg);
 };
 
@@ -19,6 +24,7 @@ export const checkStatus: CheckStatus = (status, msg, showMsg) => {
       break;
     case 401:
       showMsg('用户登录过期!');
+      break
     case 403:
       showMsg('用户没有权限!');
       break;

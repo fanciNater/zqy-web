@@ -43,6 +43,7 @@
                 <el-input
                     v-model="formData.password"
                     type="password"
+                    show-password
                     placeholder="请输入"
                 />
             </el-form-item>
@@ -85,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, defineExpose, ref } from 'vue'
+import { reactive, defineExpose, ref, nextTick } from 'vue'
 import BlockModal from '@/components/block-modal/index.vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 import { Validator } from '@/validator/index'
@@ -93,7 +94,7 @@ import { Validator } from '@/validator/index'
 const form = ref<FormInstance>()
 const callback = ref<any>()
 const modelConfig = reactive({
-    title: '添加集群',
+    title: '添加节点',
     visible: false,
     width: '520px',
     okConfig: {
@@ -142,9 +143,33 @@ function showModal(cb: () => void, data: any): void {
     callback.value = cb
     if (data) {
         formData.name = data.name
+        formData.host = data.host
+        formData.port = data.port
+        formData.username = data.username
+        formData.password = data.password
+        formData.agentHomePath = data.agentHomePath
+        formData.agentPort = data.agentPort
+        formData.hadoopHomePath = data.hadoopHomePath
         formData.comment = data.comment
         formData.id = data.id
+        modelConfig.title = '编辑节点'
+    } else {
+        formData.name = ''
+        formData.host = ''
+        formData.port = ''
+        formData.username = ''
+        formData.password = ''
+        formData.agentHomePath = ''
+        formData.agentPort = ''
+        formData.hadoopHomePath = ''
+        formData.comment = ''
+        formData.id = ''
+        modelConfig.title = '添加节点'
     }
+
+    nextTick(() => {
+        form.value?.resetFields()
+    })
     modelConfig.visible = true
 }
 

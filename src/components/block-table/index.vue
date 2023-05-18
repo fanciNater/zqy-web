@@ -110,7 +110,8 @@ interface colConfig {
   showOverflowTooltip?: boolean
   customSlot?: string
   minWidth?: number
-  width?: number
+  width?: number,
+  formatter?: () => string
 }
 
 interface TableConfig {

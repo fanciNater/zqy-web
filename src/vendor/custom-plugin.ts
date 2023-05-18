@@ -7,8 +7,7 @@ const message = ElMessage
 const RequestPluginFun = (app: any) => {
     RequestPlugin.install(app, {
         // baseURL: process.env.VUE_APP_BASE_DOMAIN,
-        // baseURL: 'http://101.132.135.228:30211',
-        baseURL: 'https://zhiqingyun-demo.isxcode.com',
+        baseURL: 'http://101.132.135.228:30211',
         timeout: 15000,
         headers: {
             'Accept-Language': 'zh-CN'

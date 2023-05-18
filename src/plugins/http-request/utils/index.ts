@@ -4,7 +4,7 @@ import axios, { AxiosResponse } from 'axios';
 import { showMessage, checkStatus } from './handler';
 import { joinTimestamp, formatRequestDate } from './helper';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from './httpEnum';
-import { isString, isUrl, setObjToUrlParams, deepMerge } from '@/utils/checkType';
+import { isString, isUrl, setObjToUrlParams, merge } from '@/utils/checkType';
 import { RequestOptions, Result, CreateAxiosOptions } from './types';
 
 // 数据处理，方便区分多种处理方式
@@ -143,10 +143,9 @@ const transform: AxiosTransform = {
     } catch (error) {
       throw new Error(error as any);
     }
-
     // 请求是否被取消
     const isCancel = axios.isCancel(error);
-    if (!isCancel) {
+    if (!isCancel && response) {
       const status = response.status;
       const msg = response.data && response.data.message ? response.data.message : message;
       checkStatus(status, msg, showErrorMessage);
@@ -177,7 +176,7 @@ const originOptions = {
     joinParamsToUrl: false,
     formatDate: true,
     apiUrl: '',
-    urlPrefix: 'https://zhiqingyun-demo.isxcode.com',
+    urlPrefix: 'http://isxcode.com:30211',
     joinPrefix: true,
     joinTime: true,
     ignoreCancelToken: true,
@@ -194,7 +193,7 @@ const originOptions = {
 };
 // 导出一个工厂函数，根据传入的配置，生成对应的请求实例
 export function createAxios(opt?: Partial<CreateAxiosOptions>) {
-  return new VAxios(deepMerge({}, { ...originOptions }));
+  return new VAxios(merge({}, { ...originOptions }, opt || {}));
 }
 
 // 导出一个默认配置的请求实例

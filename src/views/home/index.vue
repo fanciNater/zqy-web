@@ -9,7 +9,7 @@
                     @select="select"
                 ></menu-list>
             </div>
-            <div class="container-right">
+            <div class="container-right" v-if="showData">
                 <router-view />
             </div>
         </div>
@@ -17,26 +17,40 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, getCurrentInstance } from "vue"
+import { onMounted, reactive, ref, onUnmounted, nextTick } from "vue"
 import Header from '@/layout/header/index.vue'
 import MenuList from '@/layout/menu-list/index.vue'
 import { menu, MenuListData } from './home.config'
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router'
+import eventBus from '@/utils/eventBus'
 
-const menuListData: Array<menu> = reactive(MenuListData)
-const defaultMenu = ref('')
 const router = useRouter()
 const route = useRoute()
+
+const defaultMenu = ref('')
+const showData = ref(true)
+const menuListData: Array<menu> = reactive(MenuListData)
 
 const select = (e: string) => {
     defaultMenu.value = e
     router.push({ name: e })
 }
 
-const { proxy } = getCurrentInstance();
-
 onMounted(() => {
     defaultMenu.value = route.name
+    // 这里接受eventbus 触发页面更新
+    eventBus.on('tenantChange', () => {
+        showData.value = false
+        nextTick(() => {
+            showData.value = true
+        })
+    })
+})
+
+onUnmounted(() => {
+    eventBus.off('tenantChange', () => {
+        console.log('这里移除了bus')
+    })
 })
 </script>
 

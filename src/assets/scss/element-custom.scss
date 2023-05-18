@@ -48,6 +48,17 @@
         }
       }
     }
+    .el-input-number {
+      width: 100%;
+      .el-input {
+        .el-input__wrapper {
+          padding: 0 10px;
+          .el-input__inner {
+            text-align: left;
+          }
+        }
+      }
+    }
   }
   &.is-error {
     .el-form-item__error {

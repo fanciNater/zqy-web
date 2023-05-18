@@ -14,9 +14,11 @@
     "easyele-ui": "^1.0.4",
     "element-plus": "^2.3.3",
     "lodash-es": "^4.17.21",
+    "mitt": "^3.0.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0",
+    "vuex-persistedstate": "^4.1.0",
     "vxe-table": "^4.3.11",
     "xe-utils": "^3.5.7"
   },

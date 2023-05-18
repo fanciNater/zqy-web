@@ -7,30 +7,123 @@
  * @FilePath: /zqy-web/src/layout/header/index.vue
 -->
 <template>
-    <div class="header">
+    <div class="zqy-header">
         <div class="header-name">
             <!-- <img src="../../assets/icons/logo.jpg" alt="至轻云"> -->
             至轻云
         </div>
+        <div class="zqy-tenant" v-if="headerConfig.tenantList && headerConfig.tenantList.length > 0 && tenantSelect">
+        <!-- <div class="zqy-tenant"> -->
+            <el-select
+                v-model="tenantSelect"
+                @change="tenantChange"
+                @visible-change="visibleChange"
+            >
+                <el-option
+                    v-for="tenant in headerConfig.tenantList"
+                    :key="tenant.id"
+                    :label="tenant.name"
+                    :value="tenant.id"
+                />
+            </el-select>
+        </div>
         <div class="header-user">
-            <el-dropdown>
+            <el-dropdown @command="handleCommand">
                 <span class="el-dropdown-link">
-                    {{ 'admin' }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    {{ headerConfig?.userInfo?.username }}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
                         <!-- <el-dropdown-item>个人信息</el-dropdown-item> -->
-                        <el-dropdown-item>退出登录</el-dropdown-item>
+                        <el-dropdown-item command="logout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <el-avatar :size="32">{{ 'a' }}</el-avatar>
+            <el-avatar :size="32">{{ headerConfig.userInfo && headerConfig.userInfo.username ? headerConfig.userInfo.username.slice(0, 1) : '' }}</el-avatar>
         </div>
     </div>
 </template>
 
+<script lang="ts" setup>
+import { useRouter } from 'vue-router'
+import { useState, useMutations } from '@/hooks/useStore'
+import { nextTick, onMounted, reactive, ref } from 'vue'
+import { ChangeTenantData } from '@/services/login.service'
+import eventBus from '@/utils/eventBus'
+import { GetTenantList } from '@/services/tenant-list.service'
+
+const state = useState(['userInfo', 'tenantId'], 'authStoreModule')
+const mutations = useMutations(['setUserInfo', 'setToken', 'setTenantId', 'setRole'], 'authStoreModule')
+const router = useRouter()
+
+const tenantSelect = ref('')
+let headerConfig = reactive({
+    tenantList: [],
+    userInfo: state.userInfo.value
+})
+
+function handleCommand(command: string): void {
+    if (command === 'logout') {
+        clearStore()
+        router.push({ name: 'login' })
+    }
+}
+
+function clearStore() {
+    mutations.setUserInfo({})
+    mutations.setToken('')
+    mutations.setTenantId('')
+    mutations.setRole('')
+}
+
+function getTenantList(): void {
+    GetTenantList({
+        page: 0,
+        pageSize: 999,
+        searchKeyWord: '',
+    }).then((res: any) => {
+        headerConfig.tenantList = res.data || []
+        res.data.forEach((item: any) => {
+            if (item.currentTenant) {
+                tenantSelect.value = item.id
+            }
+        })
+    }).catch((err: any) => {
+        headerConfig.tenantList = []
+    })
+}
+
+function tenantChange(e: string): void {
+    ChangeTenantData({
+        tenantId: e
+    }).then((res: any) => {
+        console.log('切换成功')
+        mutations.setTenantId(e)
+
+        // 这里发送eventbus，刷新当前打开的页面
+        eventBus.emit('tenantChange')
+    }).catch((res: any) => {
+        tenantSelect.value = state.tenantId.value
+        console.log('切换失败')
+    })
+}
+
+function visibleChange(e: boolean): void {
+    if (e) {
+        getTenantList()
+    }
+}
+
+onMounted(() => {
+    nextTick(() => {
+        getTenantList()
+        eventBus.emit('tenantChange')
+    })
+})
+</script>
+
 <style lang="scss">
-.header {
+.zqy-header {
     min-width: 960px;
     height: 60px;
     box-shadow: $--app-box-shadow;
@@ -54,6 +147,34 @@
         // img {
         //     height: 48px;
         // }
+    }
+    .zqy-tenant {
+        position: absolute;
+        left: 206px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+
+        .el-input{
+            --el-input-focus-border:#fff;
+            --el-input-transparent-border: 0 0 0 0px;
+            --el-input-border-color:#fff;
+            --el-input-hover-border:0px !important;
+            --el-input-hover-border-color:#fff;
+            --el-input-focus-border-color:#fff;
+            --el-input-clear-hover-color:#fff;
+            box-shadow: 0 0 0 0px !important;
+            --el-input-border:0px;
+        }
+        .el-select .el-input__wrapper.is-focus {
+            box-shadow: 0 0 0 0px !important;
+        }
+        .el-select .el-input.is-focus .el-input__wrapper {
+            box-shadow: 0 0 0 0px !important;
+        }
+        .el-select {
+            --el-select-border-color-hover:#fff;
+        }
     }
     .header-user {
         display: flex;

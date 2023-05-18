@@ -7,14 +7,15 @@
             :unique-opened="true"
             @select="handleSelect"
         >
-            <el-menu-item
-                v-for="menu in menuList"
-                :key="menu.code"
-                :index="menu.code"
-            >
-                <el-icon><component :is="menu.icon"></component></el-icon>
-                <template #title>{{ menu.name }}</template>
-            </el-menu-item>
+            <template v-for="menu in menuList" :key="menu.code">
+                <el-menu-item
+                    v-if="menu.authType.includes(configData.role)"
+                    :index="menu.code"
+                >
+                    <el-icon><component :is="menu.icon"></component></el-icon>
+                    <template #title>{{ menu.name }}</template>
+                </el-menu-item>
+            </template>
         </el-menu>
         <div class="collapse-btn" @click="clickToCollapse">
             <template v-if="isCollapse">
@@ -28,15 +29,21 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, reactive } from 'vue'
+import { useState } from '@/hooks/useStore'
 
 interface menu {
     icon: string
     name: string
     code: string
+    authType?: Array<string>
 }
-
+const state = useState(['role'], 'authStoreModule')
 let isCollapse = ref(false)
+const configData = reactive({
+    role: state.role.value
+})
+
 defineProps<{
     menuList: {
         type: Array<menu>,
@@ -47,7 +54,6 @@ defineProps<{
 const emit = defineEmits(['select'])
 
 const handleSelect = (key: string, keyPath: string[]) => {
-    console.log(key, keyPath)
     emit('select', key)
 }
 

@@ -2,15 +2,15 @@
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
     <div class="zqy-seach-table" >
         <div class="zqy-table-top">
-            <el-button type="primary" @click="addGroup">添加集群</el-button>
+            <el-button type="primary" @click="addData">添加用户</el-button>
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
-                    placeholder="请输入集群名称/备注 回车进行搜索"
+                    placeholder="请输入用户名/手机号/邮箱 回车进行搜索"
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
-                    @keyup.enter="initData"
+                    @keyup.enter="initData(false)"
                 />
             </div>
         </div>
@@ -23,18 +23,21 @@
                 >
                     <template v-slot:statusTag="scopeSlot">
                         <div class="btn-group">
-                            <el-tag v-if="scopeSlot.row.status === 'ACTIVE'" class="ml-2" type="success">可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NO_ACTIVE'" class="ml-2" type="danger">不可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NEW'" type="info">待配置</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'UN_CHECK'">待检测</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'ENABLE'" class="ml-2" type="success">启用</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'DISABLE'" class="ml-2" type="danger">禁用</el-tag>
                         </div>
                     </template>
                     <template v-slot:options="scopeSlot">
                         <div class="btn-group">
                             <span @click="editData(scopeSlot.row)">编辑</span>
-                            <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
-                            <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            <span @click="showPointDetail(scopeSlot.row)">节点</span>
+                            <template v-if="scopeSlot.row.status === 'ENABLE'">
+                                <span v-if="!scopeSlot.row.statusLoading" @click="changeStatus(scopeSlot.row, false)">禁用</span>
+                                <el-icon v-else class="is-loading"><Loading /></el-icon>
+                            </template>
+                            <template v-else>
+                                <span v-if="!scopeSlot.row.statusLoading" @click="changeStatus(scopeSlot.row, true)">启用</span>
+                                <el-icon v-else class="is-loading"><Loading /></el-icon>
+                            </template>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
                         </div>
                     </template>
@@ -46,16 +49,26 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
-import Breadcrumb from "@/layout/bread-crumb/index.vue"
-import BlockTable from "@/components/block-table/index.vue"
+import { reactive, ref, onMounted } from 'vue'
+import Breadcrumb from '@/layout/bread-crumb/index.vue'
+import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
-import { BreadCrumbList, TableConfig, FormData } from "./computer-group.config";
-import { GetComputerGroupList, AddComputerGroupData, UpdateComputerGroupData, CheckComputerGroupData, DeleteComputerGroupData } from '@/services/computer-group.service'
-import { ElMessage, ElMessageBox } from "element-plus"
+import { BreadCrumbList, TableConfig } from './user-center.config'
+import { GetUserCenterList, DisableUser, EnableUser, DeleteUser, AddUserData, UpdateUserData } from '@/services/user-center.service'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+
+interface FormUser {
+    account: string
+    email: string
+    passwd?: string
+    phone: string
+    remark: string
+    username: string
+    id?: string
+}
 
 const router = useRouter()
 const breadCrumbList = reactive(BreadCrumbList)
@@ -66,12 +79,12 @@ const networkError = ref(false)
 const addModalRef = ref(null)
 
 function initData(tableLoading?: boolean) {
-    loading.value = true
+    loading.value = tableLoading ? false : true
     networkError.value = networkError.value || false;
-    GetComputerGroupList({
+    GetUserCenterList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
-        searchContent: keyword.value,
+        searchKeyWord: keyword.value,
     }).then((res: any) => {
         tableConfig.tableData = res.data.content
         tableConfig.pagination.total = res.data.totalElements
@@ -87,10 +100,10 @@ function initData(tableLoading?: boolean) {
     });
 }
 
-function addGroup() {
-    addModalRef.value.showModal((formData: FormData) => {
+function addData() {
+    addModalRef.value.showModal((formData: FormUser) => {
         return new Promise((resolve: any, reject: any) => {
-            AddComputerGroupData(formData).then((res: any) => {
+            AddUserData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -102,9 +115,9 @@ function addGroup() {
 }
 
 function editData(data: any) {
-    addModalRef.value.showModal((formData: FormData) => {
+    addModalRef.value.showModal((formData: FormUser) => {
         return new Promise((resolve: any, reject: any) => {
-            UpdateComputerGroupData(formData).then((res: any) => {
+            UpdateUserData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -115,36 +128,41 @@ function editData(data: any) {
     }, data)
 }
 
-// 检测
-function checkData(data: any) {
-    data.checkLoading = true
-    CheckComputerGroupData({
-        engineId: data.id
-    }).then((res: any) => {
-        data.checkLoading = false
-        ElMessage.success(res.msg)
-        initData()
-    }).catch((error: any) => {
-        data.checkLoading = false
-    })
-}
-
-// 查看节点
-function showPointDetail(data: any) {
-    router.push({ name: 'computer-pointer', query: {
-        id: data.id
-    } })
+// 启用 or 禁用
+function changeStatus(data: any, status: boolean) {
+    data.statusLoading = true
+    if (status) {
+        EnableUser({
+            userId: data.id
+        }).then((res: any) => {
+            ElMessage.success(res.msg)
+            data.statusLoading = false
+            initData(true)
+        }).catch((error: any) => {
+            data.statusLoading = false
+        })
+    } else {
+        DisableUser({
+            userId: data.id
+        }).then((res: any) => {
+            ElMessage.success(res.msg)
+            data.statusLoading = false
+            initData(true)
+        }).catch((error: any) => {
+            data.statusLoading = false
+        })
+    }
 }
 
 // 删除
 function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该集群吗？', '警告', {
+    ElMessageBox.confirm('确定删除该成员吗？', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
     }).then(() => {
-        DeleteComputerGroupData({
-            engineId: data.id
+        DeleteUser({
+            userId: data.id
         }).then((res: any) => {
             ElMessage.success(res.msg)
             initData()
@@ -161,12 +179,12 @@ function inputEvent(e: string) {
 
 function handleSizeChange(e: number) {
     tableConfig.pagination.pageSize = e;
-    initData(true)
+    initData()
 }
 
 function handleCurrentChange(e: number) {
     tableConfig.pagination.currentPage = e;
-    initData(true)
+    initData()
 }
 
 onMounted(() => {

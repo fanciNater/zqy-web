@@ -57,12 +57,12 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const breadCrumbList = reactive(BreadCrumbList)
-const tableConfig: any = reactive(TableConfig)
-const keyword = ref("")
+const keyword = ref('')
 const loading = ref(false)
 const networkError = ref(false)
 const addModalRef = ref(null)
+const breadCrumbList = reactive(BreadCrumbList)
+const tableConfig: any = reactive(TableConfig)
 
 function initData(tableLoading?: boolean) {
     loading.value = true

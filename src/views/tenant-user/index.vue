@@ -2,15 +2,15 @@
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
     <div class="zqy-seach-table" >
         <div class="zqy-table-top">
-            <el-button type="primary" @click="addGroup">添加集群</el-button>
+            <el-button type="primary" @click="addData">添加成员</el-button>
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
-                    placeholder="请输入集群名称/备注 回车进行搜索"
+                    placeholder="请输入用户名/手机号/邮箱 回车进行搜索"
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
-                    @keyup.enter="initData"
+                    @keyup.enter="initData(false)"
                 />
             </div>
         </div>
@@ -21,20 +21,22 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                 >
-                    <template v-slot:statusTag="scopeSlot">
+                    <template v-slot:roleCode="scopeSlot">
                         <div class="btn-group">
-                            <el-tag v-if="scopeSlot.row.status === 'ACTIVE'" class="ml-2" type="success">可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NO_ACTIVE'" class="ml-2" type="danger">不可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NEW'" type="info">待配置</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'UN_CHECK'">待检测</el-tag>
+                            <el-tag v-if="scopeSlot.row.roleCode === 'ROLE_TENANT_ADMIN'" class="ml-2" type="success">管理员</el-tag>
+                            <el-tag v-if="scopeSlot.row.roleCode === 'ROLE_TENANT_MEMBER'" type="info">成员</el-tag>
                         </div>
                     </template>
                     <template v-slot:options="scopeSlot">
                         <div class="btn-group">
-                            <span @click="editData(scopeSlot.row)">编辑</span>
-                            <span v-if="!scopeSlot.row.checkLoading" @click="checkData(scopeSlot.row)">检测</span>
-                            <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            <span @click="showPointDetail(scopeSlot.row)">节点</span>
+                            <template v-if="scopeSlot.row.roleCode === 'ROLE_TENANT_MEMBER'">
+                                <span v-if="!scopeSlot.row.authLoading" @click="giveAuth(scopeSlot.row)">授权</span>
+                                <el-icon v-else class="is-loading"><Loading /></el-icon>
+                            </template>
+                            <template v-else>
+                                <span v-if="!scopeSlot.row.authLoading" @click="removeAuth(scopeSlot.row)">取消授权</span>
+                                <el-icon v-else class="is-loading"><Loading /></el-icon>
+                            </template>
                             <span @click="deleteData(scopeSlot.row)">删除</span>
                         </div>
                     </template>
@@ -46,16 +48,21 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
-import Breadcrumb from "@/layout/bread-crumb/index.vue"
-import BlockTable from "@/components/block-table/index.vue"
+import { reactive, ref, onMounted } from 'vue'
+import Breadcrumb from '@/layout/bread-crumb/index.vue'
+import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import AddModal from './add-modal/index.vue'
 
-import { BreadCrumbList, TableConfig, FormData } from "./computer-group.config";
-import { GetComputerGroupList, AddComputerGroupData, UpdateComputerGroupData, CheckComputerGroupData, DeleteComputerGroupData } from '@/services/computer-group.service'
-import { ElMessage, ElMessageBox } from "element-plus"
+import { BreadCrumbList, TableConfig } from './tenant-user.config'
+import { GetUserList, AddTenantUserData, DeleteTenantUser, GiveAuth, RemoveAuth } from '@/services/tenant-user.service'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+
+interface FormUser {
+    tenantAdmin: boolean
+    userId: string
+}
 
 const router = useRouter()
 const breadCrumbList = reactive(BreadCrumbList)
@@ -68,10 +75,10 @@ const addModalRef = ref(null)
 function initData(tableLoading?: boolean) {
     loading.value = true
     networkError.value = networkError.value || false;
-    GetComputerGroupList({
+    GetUserList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
-        searchContent: keyword.value,
+        searchKeyWord: keyword.value,
     }).then((res: any) => {
         tableConfig.tableData = res.data.content
         tableConfig.pagination.total = res.data.totalElements
@@ -79,18 +86,18 @@ function initData(tableLoading?: boolean) {
         tableConfig.loading = false
         networkError.value = false
     }).catch(() => {
-        tableConfig.tableData = []
-        tableConfig.pagination.total = 0
+        // tableConfig.tableData = []
+        // tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
         networkError.value = false
     });
 }
 
-function addGroup() {
-    addModalRef.value.showModal((formData: FormData) => {
+function addData() {
+    addModalRef.value.showModal((formData: FormUser) => {
         return new Promise((resolve: any, reject: any) => {
-            AddComputerGroupData(formData).then((res: any) => {
+            AddTenantUserData(formData).then((res: any) => {
                 ElMessage.success(res.msg)
                 initData()
                 resolve()
@@ -101,50 +108,43 @@ function addGroup() {
     })
 }
 
-function editData(data: any) {
-    addModalRef.value.showModal((formData: FormData) => {
-        return new Promise((resolve: any, reject: any) => {
-            UpdateComputerGroupData(formData).then((res: any) => {
-                ElMessage.success(res.msg)
-                initData()
-                resolve()
-            }).catch((error: any) => {
-                reject(error);
-            })
-        })
-    }, data)
-}
-
-// 检测
-function checkData(data: any) {
-    data.checkLoading = true
-    CheckComputerGroupData({
-        engineId: data.id
+// 授权
+function giveAuth(data: any) {
+    data.authLoading = true
+    GiveAuth({
+        tenantUserId: data.id
     }).then((res: any) => {
-        data.checkLoading = false
+        data.authLoading = false
         ElMessage.success(res.msg)
         initData()
     }).catch((error: any) => {
-        data.checkLoading = false
+        data.authLoading = false
     })
 }
 
-// 查看节点
-function showPointDetail(data: any) {
-    router.push({ name: 'computer-pointer', query: {
-        id: data.id
-    } })
+// 取消授权
+function removeAuth(data: any) {
+    data.authLoading = true
+    RemoveAuth({
+        tenantUserId: data.id
+    }).then((res: any) => {
+        data.authLoading = false
+        ElMessage.success(res.msg)
+        initData()
+    }).catch((error: any) => {
+        data.authLoading = false
+    })
 }
 
 // 删除
 function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该集群吗？', '警告', {
+    ElMessageBox.confirm('确定删除该成员吗？', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
     }).then(() => {
-        DeleteComputerGroupData({
-            engineId: data.id
+        DeleteTenantUser({
+            tenantUserId: data.id
         }).then((res: any) => {
             ElMessage.success(res.msg)
             initData()
@@ -161,12 +161,12 @@ function inputEvent(e: string) {
 
 function handleSizeChange(e: number) {
     tableConfig.pagination.pageSize = e;
-    initData(true)
+    initData()
 }
 
 function handleCurrentChange(e: number) {
     tableConfig.pagination.currentPage = e;
-    initData(true)
+    initData()
 }
 
 onMounted(() => {

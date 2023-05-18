@@ -1,7 +1,7 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-05-05 15:04:54
- * @LastEditTime: 2023-05-05 22:00:21
+ * @LastEditTime: 2023-05-18 21:19:24
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/layout/header/index.vue
@@ -48,7 +48,7 @@
 import { useRouter } from 'vue-router'
 import { useState, useMutations } from '@/hooks/useStore'
 import { nextTick, onMounted, reactive, ref } from 'vue'
-import { ChangeTenantData } from '@/services/login.service'
+import { ChangeTenantData, QueryTenantList } from '@/services/login.service'
 import eventBus from '@/utils/eventBus'
 import { GetTenantList } from '@/services/tenant-list.service'
 
@@ -77,11 +77,7 @@ function clearStore() {
 }
 
 function getTenantList(): void {
-    GetTenantList({
-        page: 0,
-        pageSize: 999,
-        searchKeyWord: '',
-    }).then((res: any) => {
+    QueryTenantList().then((res: any) => {
         headerConfig.tenantList = res.data || []
         res.data.forEach((item: any) => {
             if (item.currentTenant) {
@@ -92,6 +88,23 @@ function getTenantList(): void {
         headerConfig.tenantList = []
     })
 }
+
+// function getTenantList(): void {
+//     GetTenantList({
+//         page: 0,
+//         pageSize: 999,
+//         searchKeyWord: '',
+//     }).then((res: any) => {
+//         headerConfig.tenantList = res.data || []
+//         res.data.forEach((item: any) => {
+//             if (item.currentTenant) {
+//                 tenantSelect.value = item.id
+//             }
+//         })
+//     }).catch((err: any) => {
+//         headerConfig.tenantList = []
+//     })
+// }
 
 function tenantChange(e: string): void {
     ChangeTenantData({

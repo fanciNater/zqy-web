@@ -176,7 +176,7 @@ const originOptions = {
     joinParamsToUrl: false,
     formatDate: true,
     apiUrl: '',
-    urlPrefix: 'http://isxcode.com:30211',
+    urlPrefix: '',
     joinPrefix: true,
     joinTime: true,
     ignoreCancelToken: true,

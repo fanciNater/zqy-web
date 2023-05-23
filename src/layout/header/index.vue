@@ -1,7 +1,7 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-05-05 15:04:54
- * @LastEditTime: 2023-05-18 21:19:24
+ * @LastEditTime: 2023-05-05 22:00:21
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/layout/header/index.vue
@@ -53,7 +53,7 @@ import eventBus from '@/utils/eventBus'
 import { GetTenantList } from '@/services/tenant-list.service'
 
 const state = useState(['userInfo', 'tenantId'], 'authStoreModule')
-const mutations = useMutations(['setUserInfo', 'setToken', 'setTenantId', 'setRole'], 'authStoreModule')
+const mutations = useMutations(['setUserInfo', 'setToken', 'setTenantId', 'setRole', 'setCurrentMenu'], 'authStoreModule')
 const router = useRouter()
 
 const tenantSelect = ref('')
@@ -74,10 +74,16 @@ function clearStore() {
     mutations.setToken('')
     mutations.setTenantId('')
     mutations.setRole('')
+    mutations.setRole('')
+    mutations.setCurrentMenu('')
 }
 
 function getTenantList(): void {
-    QueryTenantList().then((res: any) => {
+    GetTenantList({
+        page: 0,
+        pageSize: 999,
+        searchKeyWord: '',
+    }).then((res: any) => {
         headerConfig.tenantList = res.data || []
         res.data.forEach((item: any) => {
             if (item.currentTenant) {
@@ -88,23 +94,6 @@ function getTenantList(): void {
         headerConfig.tenantList = []
     })
 }
-
-// function getTenantList(): void {
-//     GetTenantList({
-//         page: 0,
-//         pageSize: 999,
-//         searchKeyWord: '',
-//     }).then((res: any) => {
-//         headerConfig.tenantList = res.data || []
-//         res.data.forEach((item: any) => {
-//             if (item.currentTenant) {
-//                 tenantSelect.value = item.id
-//             }
-//         })
-//     }).catch((err: any) => {
-//         headerConfig.tenantList = []
-//     })
-// }
 
 function tenantChange(e: string): void {
     ChangeTenantData({

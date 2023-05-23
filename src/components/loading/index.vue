@@ -1,7 +1,7 @@
 <template>
-    <div class="zqy-loading" style="">
+    <div class="zqy-loading">
         <template v-if="displayVisable">
-            <div class="zqy-loading-img__another">
+            <div class="zqy-loading-img__another" style="opacity: 0.7">
                 <div class="loader"></div>
             </div>
             <span class="loading-text">
@@ -24,9 +24,7 @@
                 >
             </span>
         </div>
-        <template v-else>
-            <slot></slot>
-        </template>
+        <slot></slot>
     </div>
 </template>
 
@@ -111,8 +109,11 @@ function handleReflesh() {
         position: absolute;
         top: 0;
         bottom: 0;
-        left: 0;
-        right: 0;
+        left: 8px;
+        right: 8px;
+        background-color: $--app-header-bgColor;
+        z-index: 100;
+        
         .loader {
             left: 50%;
             top: 50%;

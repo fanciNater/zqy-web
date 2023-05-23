@@ -1,3 +1,11 @@
+/*
+ * @Author: fanciNate
+ * @Date: 2023-05-23 17:00:06
+ * @LastEditTime: 2023-05-23 20:35:45
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/src/utils/http/index.ts
+ */
 import { createAxios } from '@/plugins/http-request'
 import router from '@/router'
 import { merge } from '../checkType'
@@ -11,7 +19,6 @@ const storeData: any = store
 export const httpOption = {
     transform: {
         requestInterceptors: (config: any) => {
-
             config.headers['authorization'] = storeData.state?.authStoreModule?.token
             config.headers['tenant'] = storeData.state?.authStoreModule?.tenantId
 
@@ -24,6 +31,7 @@ export const httpOption = {
         }
     },
     requestOptions: {
+        urlPrefix: 'http://isxcode.com:30211',
         showSuccessMessage: (msg: string): void => {
             message.success(msg)
         },
@@ -38,8 +46,10 @@ export const httpOption = {
                     router.push({
                         name: 'login'
                     });
+                } else if (status == 403) {
+                    message.error('许可证无效，请联系管理员')
                 } else {
-                    showMsg('2222', msg);
+                    showMsg(msg);
                 }
             } catch (error) {
                 console.error('error', error)

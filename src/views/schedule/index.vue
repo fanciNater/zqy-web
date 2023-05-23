@@ -2,7 +2,7 @@
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
     <div class="zqy-seach-table" >
         <div class="zqy-table-top">
-            <el-button type="primary" @click="addData">上传证书</el-button>
+            <div></div>
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
@@ -43,7 +43,6 @@
                 </BlockTable>
             </div>
         </LoadingPage>
-        <AddModal ref="addModalRef"></AddModal>
     </div>
 </template>
 
@@ -52,30 +51,22 @@ import { reactive, ref, onMounted } from 'vue'
 import Breadcrumb from '@/layout/bread-crumb/index.vue'
 import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
-import AddModal from './add-modal/index.vue'
 
-import { BreadCrumbList, TableConfig } from './license.config'
-import { GetLicenseList, UploadLicenseFile, DisableLicense, EnableLicense, DeleteLicense } from '@/services/license.service'
+import { BreadCrumbList, TableConfig } from './schedule.config'
+import { GetScheduleList } from '@/services/schedule.service'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-interface FormUser {
-    tenantAdmin: boolean
-    userId: string
-}
-
-const router = useRouter()
 const breadCrumbList = reactive(BreadCrumbList)
 const tableConfig: any = reactive(TableConfig)
 const keyword = ref("")
 const loading = ref(false)
 const networkError = ref(false)
-const addModalRef = ref(null)
 
 function initData(tableLoading?: boolean) {
     loading.value = tableLoading ? false : true
     networkError.value = networkError.value || false;
-    GetLicenseList({
+    GetScheduleList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
         searchKeyWord: keyword.value,
@@ -94,64 +85,64 @@ function initData(tableLoading?: boolean) {
     });
 }
 
-function addData() {
-    addModalRef.value.showModal((data: any) => {
-        return new Promise((resolve: any, reject: any) => {
-            const formData = new FormData()
-            formData.append('license', data);
-            UploadLicenseFile(formData).then((res: any) => {
-                ElMessage.success(res.msg)
-                initData()
-                resolve()
-            }).catch((error: any) => {
-                reject(error);
-            })
-        })
-    })
-}
+// function addData() {
+//     addModalRef.value.showModal((data: any) => {
+//         return new Promise((resolve: any, reject: any) => {
+//             const formData = new FormData()
+//             formData.append('license', data);
+//             UploadLicenseFile(formData).then((res: any) => {
+//                 ElMessage.success(res.msg)
+//                 initData()
+//                 resolve()
+//             }).catch((error: any) => {
+//                 reject(error);
+//             })
+//         })
+//     })
+// }
 
-// 启用 or 禁用
-function changeStatus(data: any, status: boolean) {
-    data.statusLoading = true
-    if (status) {
-        EnableLicense({
-            licenseId: data.id
-        }).then((res: any) => {
-            ElMessage.success(res.msg)
-            data.statusLoading = false
-            initData(true)
-        }).catch((error: any) => {
-            data.statusLoading = false
-        })
-    } else {
-        DisableLicense({
-            licenseId: data.id
-        }).then((res: any) => {
-            ElMessage.success(res.msg)
-            data.statusLoading = false
-            initData(true)
-        }).catch((error: any) => {
-            data.statusLoading = false
-        })
-    }
-}
+// // 启用 or 禁用
+// function changeStatus(data: any, status: boolean) {
+//     data.statusLoading = true
+//     if (status) {
+//         EnableLicense({
+//             licenseId: data.id
+//         }).then((res: any) => {
+//             ElMessage.success(res.msg)
+//             data.statusLoading = false
+//             initData(true)
+//         }).catch((error: any) => {
+//             data.statusLoading = false
+//         })
+//     } else {
+//         DisableLicense({
+//             licenseId: data.id
+//         }).then((res: any) => {
+//             ElMessage.success(res.msg)
+//             data.statusLoading = false
+//             initData(true)
+//         }).catch((error: any) => {
+//             data.statusLoading = false
+//         })
+//     }
+// }
 
-// 删除
-function deleteData(data: any) {
-    ElMessageBox.confirm('确定删除该证书吗？', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-    }).then(() => {
-        DeleteLicense({
-            licenseId: data.id
-        }).then((res: any) => {
-            ElMessage.success(res.msg)
-            initData()
-        }).catch((error: any) => {
-        })
-    })
-}
+// // 删除
+// function deleteData(data: any) {
+//     ElMessageBox.confirm('确定删除该证书吗？', '警告', {
+//         confirmButtonText: '确定',
+//         cancelButtonText: '取消',
+//         type: 'warning',
+//     }).then(() => {
+//         DeleteLicense({
+//             licenseId: data.id
+//         }).then((res: any) => {
+//             ElMessage.success(res.msg)
+//             initData()
+//         }).catch((error: any) => {
+//         })
+//     })
+// }
 
 function inputEvent(e: string) {
     if (e === "") {

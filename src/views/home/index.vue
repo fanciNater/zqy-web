@@ -23,9 +23,12 @@ import MenuList from '@/layout/menu-list/index.vue'
 import { menu, MenuListData } from './home.config'
 import { useRouter, useRoute } from 'vue-router'
 import eventBus from '@/utils/eventBus'
+import { useMutations, useState } from "@/hooks/useStore"
 
 const router = useRouter()
 const route = useRoute()
+const mutations = useMutations(['setCurrentMenu'], 'authStoreModule')
+const state = useState(['currentMenu', 'role'], 'authStoreModule')
 
 const defaultMenu = ref('')
 const showData = ref(true)
@@ -33,11 +36,20 @@ const menuListData: Array<menu> = reactive(MenuListData)
 
 const select = (e: string) => {
     defaultMenu.value = e
+    mutations.setCurrentMenu(e)
     router.push({ name: e })
 }
 
 onMounted(() => {
-    defaultMenu.value = route.name
+    const menuList = menuListData.filter(menu => menu.authType?.includes(state.role.value))
+    if (!state.currentMenu.value) {
+        defaultMenu.value = menuList[0].code
+        router.push({ name: defaultMenu.value })
+        mutations.setCurrentMenu(defaultMenu.value)
+    } else {
+        defaultMenu.value = state.currentMenu.value
+        router.push({ name: state.currentMenu.value })
+    }
     // 这里接受eventbus 触发页面更新
     eventBus.on('tenantChange', () => {
         showData.value = false

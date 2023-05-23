@@ -5,6 +5,7 @@ import DataSource from '@/views/datasource/index.vue'
 import Workflow from '@/views/workflow/index.vue'
 import WorkflowDetail from '@/views/workflow/workflow-detail/index.vue'
 import WorkItem from '@/views/workflow/work-item/index.vue'
+import Schedule from '@/views/schedule/index.vue'
 
 import UserCenter from '@/views/user-center/index.vue'
 import TenantList from '@/views/tenant-list/index.vue'
@@ -61,5 +62,10 @@ export default [
         path: '/license',
         name: 'license',
         component: License
+    },
+    {
+        path: '/schedule',
+        name: 'schedule',
+        component: Schedule
     }
 ]

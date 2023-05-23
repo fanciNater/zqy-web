@@ -12,7 +12,8 @@ export const authStore = {
         userInfo: {},
         token: '',
         tenantId: '',
-        role: ''
+        role: '',
+        currentMenu: ''
     },
     mutations: {
         setUserInfo(state: any, data: any): void {
@@ -26,6 +27,9 @@ export const authStore = {
         },
         setRole(state: any, role: string): void {
             state.role = role
+        },
+        setCurrentMenu(state: any, menu: string): void {
+            state.currentMenu = menu
         }
     },
     actions: {

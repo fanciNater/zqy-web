@@ -26,6 +26,12 @@ export const MenuListData: Array<menu> = [
         authType: ['ROLE_TENANT_MEMBER', 'ROLE_TENANT_ADMIN']
     },
     {
+        code: 'schedule',
+        name: '调度历史',
+        icon: 'DocumentRemove',
+        authType: ['ROLE_TENANT_MEMBER', 'ROLE_TENANT_ADMIN']
+    },
+    {
         code: 'user-center',
         name: '用户中心',
         icon: 'UserFilled',

@@ -84,38 +84,23 @@ export class VAxios {
   }
 
   // 文件上传
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
-    const formData = new window.FormData();
-    const customFilename = params.name || 'file';
-
-    if (params.filename) {
-      formData.append(customFilename, params.file, params.filename);
-    } else {
-      formData.append(customFilename, params.file);
-    }
-
-    if (params.data) {
-      Object.keys(params.data).forEach((key) => {
-        const value = params.data![key];
-        if (Array.isArray(value)) {
-          value.forEach((item) => {
-            formData.append(`${key}[]`, item);
-          });
-          return;
-        }
-
-        formData.append(key, params.data![key]);
-      });
+  uploadFile<T = any>(config: AxiosRequestConfig, params?: any) {
+    let conf: AxiosRequestConfig = cloneDeep(config);
+    const { transform, requestOptions } = this.options;
+    const opt: RequestOptions = Object.assign({}, requestOptions, {});
+    const { beforeRequestHook, requestCatch, transformRequestData } = transform || {};
+    if (beforeRequestHook && isFunction(beforeRequestHook)) {
+      conf = beforeRequestHook(conf, opt);
     }
 
     return this.axiosInstance.request<T>({
       method: 'POST',
-      data: formData,
+      data: params,
       headers: {
         'Content-type': ContentTypeEnum.FORM_DATA,
         ignoreCancelToken: true
       },
-      ...config
+      ...conf
     });
   }
 

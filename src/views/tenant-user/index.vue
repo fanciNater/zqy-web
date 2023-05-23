@@ -86,8 +86,8 @@ function initData(tableLoading?: boolean) {
         tableConfig.loading = false
         networkError.value = false
     }).catch(() => {
-        // tableConfig.tableData = []
-        // tableConfig.pagination.total = 0
+        tableConfig.tableData = []
+        tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
         networkError.value = false

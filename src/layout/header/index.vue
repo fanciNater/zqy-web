@@ -1,7 +1,7 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-05-05 15:04:54
- * @LastEditTime: 2023-05-05 22:00:21
+ * @LastEditTime: 2023-05-23 22:03:43
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/layout/header/index.vue
@@ -50,7 +50,7 @@ import { useState, useMutations } from '@/hooks/useStore'
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ChangeTenantData, QueryTenantList } from '@/services/login.service'
 import eventBus from '@/utils/eventBus'
-import { GetTenantList } from '@/services/tenant-list.service'
+// import { GetTenantList } from '@/services/tenant-list.service'
 
 const state = useState(['userInfo', 'tenantId'], 'authStoreModule')
 const mutations = useMutations(['setUserInfo', 'setToken', 'setTenantId', 'setRole', 'setCurrentMenu'], 'authStoreModule')
@@ -79,17 +79,16 @@ function clearStore() {
 }
 
 function getTenantList(): void {
-    GetTenantList({
-        page: 0,
-        pageSize: 999,
-        searchKeyWord: '',
-    }).then((res: any) => {
+    QueryTenantList().then((res: any) => {
         headerConfig.tenantList = res.data || []
         res.data.forEach((item: any) => {
             if (item.currentTenant) {
                 tenantSelect.value = item.id
             }
         })
+        if (res.data && res.data.length > 0 && res.data.every((item: any) => !item.currentTenant)) {
+            tenantChange(res.data[0].id)
+        }
     }).catch((err: any) => {
         headerConfig.tenantList = []
     })

@@ -23,8 +23,11 @@
                 >
                     <template v-slot:statusTag="scopeSlot">
                         <div class="btn-group">
-                            <el-tag v-if="scopeSlot.row.status === 'ENABLE'" class="ml-2" type="success">启用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'DISABLE'" class="ml-2" type="danger">禁用</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'SUCCESS'" class="ml-2" type="success">成功</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'FAIL'" class="ml-2" type="danger">失败</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'ABORT'" class="ml-2" type="warning">已终止</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'RUNNING'" class="ml-2">运行中</el-tag>
+                            <el-tag v-if="!scopeSlot.row.status" class="ml-2" type="info">未运行</el-tag>
                         </div>
                     </template>
                     <template v-slot:options="scopeSlot">

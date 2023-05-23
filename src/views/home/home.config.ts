@@ -1,3 +1,11 @@
+/*
+ * @Author: fanciNate
+ * @Date: 2023-05-23 16:48:34
+ * @LastEditTime: 2023-05-23 22:20:55
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/src/views/home/home.config.ts
+ */
 export interface menu {
     icon: string
     name: string
@@ -47,7 +55,7 @@ export const MenuListData: Array<menu> = [
         code: 'tenant-user',
         name: '租户成员',
         icon: 'User',
-        authType: ['ROLE_TENANT_MEMBER', 'ROLE_TENANT_ADMIN', 'ROLE_SYS_ADMIN']
+        authType: ['ROLE_TENANT_ADMIN', 'ROLE_SYS_ADMIN']
     },
     {
         code: 'license',

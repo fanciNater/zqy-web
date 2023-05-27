@@ -33,6 +33,7 @@
             </vxe-column>
             <vxe-column
                 v-else
+                :show-header-overflow="colConfig.showHeaderOverflow || false"
                 :key="colConfig.prop"
                 :width="colConfig.width"
                 :field="colConfig.prop"

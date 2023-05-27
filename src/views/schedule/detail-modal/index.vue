@@ -124,15 +124,17 @@ function getResultDatalist() {
             return {
                 prop: colunm,
                 title: colunm,
-                minWidth: 100
+                minWidth: 100,
+                showHeaderOverflow: true,
+                showOverflowTooltip: true
             }
         })
         tableConfig.tableData = tableData.map((columnData: any) => {
-            return col.map((c: any, index: number) => {
-                return {
-                    [c]: columnData[index]
-                }
-            })[0]
+            const dataObj: any = {}
+            col.forEach((c: any, index: number) => {
+                dataObj[c] = columnData[index]
+            })
+            return dataObj
         })
         tableConfig.loading = false
     }).catch((error: any) => {

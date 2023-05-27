@@ -10,7 +10,7 @@ import { http } from '@/utils/http';
 interface SerchParams {
     page: number
     pageSize: number
-    searchContent: string
+    searchKeyWord: string
 }
 
 export function GetDatasourceList(params: SerchParams): Promise<any> {

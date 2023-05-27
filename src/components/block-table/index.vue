@@ -47,6 +47,7 @@
         </template>
     </vxe-table>
     <el-pagination
+        v-if="tableConfig.pagination"
         class="pagination"
         popper-class="pagination-popper"
         background
@@ -65,37 +66,6 @@
 <script lang="ts" setup>
 import { defineProps, defineEmits } from "vue"
 import EmptyPage from '@/components/empty-page'
-
-// const tableConfig: any = reactive({
-//     tableData: [
-//         {
-//             name: "张三",
-//             age: 22,
-//         },
-//     ],
-//     colConfigs: [
-//         {
-//             prop: "name",
-//             label: "名称",
-//             align: 'right',
-//             showOverflowTooltip: true,
-//             customSlot: 'nameSlot'
-//         },
-//         {
-//             prop: "age",
-//             label: "年龄",
-//             align: 'left',
-//             showOverflowTooltip: true,
-//         }
-//     ],
-//     pagination: {
-//         currentPage: 1,
-//         pageSize: 10,
-//         total: 0
-//     },
-//     seqType: 'seq',
-//     loading: false
-// });
 
 interface Pagination {
     currentPage: number;

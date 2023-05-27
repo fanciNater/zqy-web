@@ -31,7 +31,7 @@ export interface TableConfig {
 export interface SerchParams {
     page: number;
     pageSize: number;
-    searchContent: string;
+    searchKeyWord: string;
 }
 
 export interface FormData {

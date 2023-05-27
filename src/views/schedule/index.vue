@@ -6,7 +6,7 @@
             <div class="zqy-seach">
                 <el-input
                     v-model="keyword"
-                    placeholder="请输入备注 回车进行搜索"
+                    placeholder="请输入实例编码/作业 回车进行搜索"
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
@@ -14,13 +14,19 @@
                 />
             </div>
         </div>
-        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData">
+        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData(false)">
             <div class="zqy-table">
                 <BlockTable
                     :tableConfig="tableConfig"
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                 >
+                    <template v-slot:instanceTypeTag="scopeSlot">
+                        <div class="btn-group">
+                            <el-tag v-if="scopeSlot.row.instanceType === 'MANUAL'" class="ml-2" type="info">手动执行</el-tag>
+                            <el-tag v-if="scopeSlot.row.instanceType === 'WORK'" class="ml-2" type="info">调度执行</el-tag>
+                        </div>
+                    </template>
                     <template v-slot:statusTag="scopeSlot">
                         <div class="btn-group">
                             <el-tag v-if="scopeSlot.row.status === 'SUCCESS'" class="ml-2" type="success">成功</el-tag>
@@ -32,20 +38,24 @@
                     </template>
                     <template v-slot:options="scopeSlot">
                         <div class="btn-group">
-                            <template v-if="scopeSlot.row.status === 'ENABLE'">
-                                <span v-if="!scopeSlot.row.statusLoading" @click="changeStatus(scopeSlot.row, false)">禁用</span>
-                                <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            </template>
-                            <template v-else>
-                                <span v-if="!scopeSlot.row.statusLoading" @click="changeStatus(scopeSlot.row, true)">启用</span>
-                                <el-icon v-else class="is-loading"><Loading /></el-icon>
-                            </template>
-                            <span @click="deleteData(scopeSlot.row)">删除</span>
+                            <span @click="showDetailModal(scopeSlot.row, 'log')">日志</span>
+                            <el-dropdown trigger="click">
+                                <span class="click-show-more">更多</span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item v-if="scopeSlot.row.status !== 'RUNNING'" @click="showDetailModal(scopeSlot.row, 'yarnLog')">Yarn日志</el-dropdown-item>
+                                        <el-dropdown-item v-if="scopeSlot.row.status !== 'RUNNING'" @click="retry(scopeSlot.row)">重新运行</el-dropdown-item>
+                                        <el-dropdown-item v-if="scopeSlot.row.status === 'SUCCESS'"  @click="showDetailModal(scopeSlot.row, 'result')">结果</el-dropdown-item>
+                                        <el-dropdown-item @click="deleteSchedule(scopeSlot.row)">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                         </div>
                     </template>
                 </BlockTable>
             </div>
         </LoadingPage>
+        <DetailModal ref="detailModalRef"></DetailModal>
     </div>
 </template>
 
@@ -54,9 +64,10 @@ import { reactive, ref, onMounted } from 'vue'
 import Breadcrumb from '@/layout/bread-crumb/index.vue'
 import BlockTable from '@/components/block-table/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
+import DetailModal from './detail-modal/index.vue'
 
 import { BreadCrumbList, TableConfig } from './schedule.config'
-import { GetScheduleList } from '@/services/schedule.service'
+import { GetScheduleList, DeleteScheduleLog, ReStartRunning } from '@/services/schedule.service'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -65,6 +76,7 @@ const tableConfig: any = reactive(TableConfig)
 const keyword = ref("")
 const loading = ref(false)
 const networkError = ref(false)
+const detailModalRef = ref(null)
 
 function initData(tableLoading?: boolean) {
     loading.value = tableLoading ? false : true
@@ -80,72 +92,47 @@ function initData(tableLoading?: boolean) {
         tableConfig.loading = false
         networkError.value = false
     }).catch(() => {
-        // tableConfig.tableData = []
-        // tableConfig.pagination.total = 0
+        tableConfig.tableData = []
+        tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
-        networkError.value = false
+        networkError.value = true
     });
 }
 
-// function addData() {
-//     addModalRef.value.showModal((data: any) => {
-//         return new Promise((resolve: any, reject: any) => {
-//             const formData = new FormData()
-//             formData.append('license', data);
-//             UploadLicenseFile(formData).then((res: any) => {
-//                 ElMessage.success(res.msg)
-//                 initData()
-//                 resolve()
-//             }).catch((error: any) => {
-//                 reject(error);
-//             })
-//         })
-//     })
-// }
+function showDetailModal(data: any, type: string) {
+    detailModalRef.value.showModal(() => {
+        console.log('关闭')
+    }, data, type)
+}
 
-// // 启用 or 禁用
-// function changeStatus(data: any, status: boolean) {
-//     data.statusLoading = true
-//     if (status) {
-//         EnableLicense({
-//             licenseId: data.id
-//         }).then((res: any) => {
-//             ElMessage.success(res.msg)
-//             data.statusLoading = false
-//             initData(true)
-//         }).catch((error: any) => {
-//             data.statusLoading = false
-//         })
-//     } else {
-//         DisableLicense({
-//             licenseId: data.id
-//         }).then((res: any) => {
-//             ElMessage.success(res.msg)
-//             data.statusLoading = false
-//             initData(true)
-//         }).catch((error: any) => {
-//             data.statusLoading = false
-//         })
-//     }
-// }
+function retry(data: any) {
+    ReStartRunning({
+        instanceId: data.id
+    }).then((res: any) => {
+        ElMessage.success(res.msg)
+        initData()
+    }).catch((error: any) => {
+        console.error(error)
+    })
+}
 
 // // 删除
-// function deleteData(data: any) {
-//     ElMessageBox.confirm('确定删除该证书吗？', '警告', {
-//         confirmButtonText: '确定',
-//         cancelButtonText: '取消',
-//         type: 'warning',
-//     }).then(() => {
-//         DeleteLicense({
-//             licenseId: data.id
-//         }).then((res: any) => {
-//             ElMessage.success(res.msg)
-//             initData()
-//         }).catch((error: any) => {
-//         })
-//     })
-// }
+function deleteSchedule(data: any) {
+    ElMessageBox.confirm('确定删除该调度历史吗？', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+    }).then(() => {
+        DeleteScheduleLog({
+            instanceId: data.id
+        }).then((res: any) => {
+            ElMessage.success(res.msg)
+            initData()
+        }).catch((error: any) => {
+        })
+    })
+}
 
 function inputEvent(e: string) {
     if (e === "") {
@@ -167,3 +154,11 @@ onMounted(() => {
     initData()
 })
 </script>
+
+<style lang="scss">
+.zqy-seach-table {
+    .click-show-more {
+        font-size: $--app-small-font-size;
+    }
+}
+</style>

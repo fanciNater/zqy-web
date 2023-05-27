@@ -74,7 +74,7 @@ function getDataSourceList() {
     GetDatasourceList({
         page: 0,
         pageSize: 10000,
-        searchContent: '',
+        searchKeyWord: '',
     }).then((res: any) => {
         typeList.value = res.data.content.map((item: any) => {
             return {

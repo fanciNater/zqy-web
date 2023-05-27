@@ -46,11 +46,11 @@
                     />
                 </div>
                 <div class="log-show">
-                    <el-tabs v-model="activeName">
+                    <el-tabs v-model="activeName" @tab-change="tabChangeEvent">
                         <el-tab-pane v-for="tab in tabList" :key="tab.code" :label="tab.name" :name="tab.code">
-                            <!-- <component :is="activeName"></component> -->
-                            <PublishLog v-if="tab.code === 'publish-log'"></PublishLog>
-                            <ReturnData v-if="tab.code === 'return-data'"></ReturnData>
+                            <component :is="activeName"></component>
+                            <!-- <PublishLog ref="publishLogRef" v-if="tab.code === 'publish-log'"></PublishLog> -->
+                            <!-- <ReturnData v-if="tab.code === 'return-data'"></ReturnData> -->
                         </el-tab-pane>
                     </el-tabs>
                 </div>
@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, getCurrentInstance, onMounted } from 'vue'
+import { reactive, ref, getCurrentInstance, onMounted, markRaw } from 'vue'
 import Breadcrumb from '@/layout/bread-crumb/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import ConfigModal from './config-modal/index.vue'
@@ -80,8 +80,11 @@ const runningLoading = ref(false)
 const saveLoading = ref(false)
 const terLoading = ref(false)
 const configModalRef = ref(null)
-const activeName = ref('publish-log')
+const activeName = ref(null)
 const sqltextData = ref('')
+
+// 日志实例
+const publishLogRef = ref(null)
 
 let workConfig = reactive({
     datasourceId: '',
@@ -128,13 +131,21 @@ function initData() {
         workId: route.query.id
     }).then((res: any) => {
         workConfig = res.data
-        sqltextData.value = res.data.sql
+        sqltextData.value = res.data.sqlScript
         loading.value = false
         networkError.value = false
     }).catch(() => {
         loading.value = false
         networkError.value = false
     });
+}
+
+function tabChangeEvent(e: string) {
+    const lookup = {
+        PublishLog,
+        ReturnData
+    }
+    activeName.value = markRaw(lookup[e])
 }
 
 // 返回
@@ -154,9 +165,11 @@ function runWorkData() {
         workId: route.query.id
     }).then((res: any) => {
         runningLoading.value = false
-        workConfig.applicationId = res.data.applicationId
+        // workConfig.applicationId = res.data.applicationId
+        workConfig.applicationId = res.data.instanceId
         ElMessage.success(res.msg)
         initData()
+        publishLogRef.value.initData(res.data.instanceId)
     }).catch((error: any) => {
         runningLoading.value = false
     })

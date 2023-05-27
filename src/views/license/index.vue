@@ -14,7 +14,7 @@
                 />
             </div>
         </div>
-        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData">
+        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData(false)">
             <div class="zqy-table">
                 <BlockTable
                     :tableConfig="tableConfig"
@@ -86,11 +86,11 @@ function initData(tableLoading?: boolean) {
         tableConfig.loading = false
         networkError.value = false
     }).catch(() => {
-        // tableConfig.tableData = []
-        // tableConfig.pagination.total = 0
+        tableConfig.tableData = []
+        tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
-        networkError.value = false
+        networkError.value = true
     });
 }
 

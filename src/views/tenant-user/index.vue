@@ -14,7 +14,7 @@
                 />
             </div>
         </div>
-        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData">
+        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData(false)">
             <div class="zqy-table">
                 <BlockTable
                     :tableConfig="tableConfig"
@@ -73,7 +73,7 @@ const networkError = ref(false)
 const addModalRef = ref(null)
 
 function initData(tableLoading?: boolean) {
-    loading.value = true
+    loading.value = tableLoading ? false : true
     networkError.value = networkError.value || false;
     GetUserList({
         page: tableConfig.pagination.currentPage - 1,
@@ -90,7 +90,7 @@ function initData(tableLoading?: boolean) {
         tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
-        networkError.value = false
+        networkError.value = true
     });
 }
 
@@ -116,7 +116,7 @@ function giveAuth(data: any) {
     }).then((res: any) => {
         data.authLoading = false
         ElMessage.success(res.msg)
-        initData()
+        initData(true)
     }).catch((error: any) => {
         data.authLoading = false
     })
@@ -130,7 +130,7 @@ function removeAuth(data: any) {
     }).then((res: any) => {
         data.authLoading = false
         ElMessage.success(res.msg)
-        initData()
+        initData(true)
     }).catch((error: any) => {
         data.authLoading = false
     })

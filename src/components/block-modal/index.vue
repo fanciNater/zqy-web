@@ -3,7 +3,7 @@
         v-model="modelConfig.visible"
         :title="modelConfig.title"
         :width="modelConfig.width"
-        :class="' zqy-block-modal'"
+        :class="modelConfig.customClass + ' zqy-block-modal'"
         :close-on-press-escape="false"
         :close-on-click-modal="false"
         :append-to-body="true"

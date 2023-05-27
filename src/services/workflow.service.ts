@@ -10,7 +10,7 @@ import { http } from '@/utils/http';
 interface SerchParams {
     page: number
     pageSize: number
-    searchContent: string
+    searchKeyWord: string
 }
 
 export function GetWorkflowList(params: SerchParams): Promise<any> {
@@ -121,12 +121,20 @@ export function TerWorkItemConfig(params: any): Promise<any> {
     })
 }
 
-
 // 作业-详情-保存配置
 export function SaveWorkItemConfig(params: any): Promise<any> {
     return http.request({
         method: 'post',
         url: '/woc/configWork',
+        params: params
+    })
+}
+
+// 作业-详情-提交日志
+export function GetSubmitLogData(params: any): Promise<any> {
+    return http.request({
+        method: 'get',
+        url: '/wok/getSubmitLog',
         params: params
     })
 }

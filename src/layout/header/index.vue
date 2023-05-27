@@ -30,7 +30,8 @@
         <div class="header-user">
             <el-dropdown @command="handleCommand">
                 <span class="el-dropdown-link">
-                    {{ headerConfig?.userInfo?.username }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    <!-- {{ headerConfig?.userInfo?.username }}<i class="el-icon-arrow-down el-icon--right"></i> -->
+                    <el-avatar :size="32">{{ headerConfig.userInfo && headerConfig.userInfo.username ? headerConfig.userInfo.username.slice(0, 1) : '' }}</el-avatar>
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
@@ -39,7 +40,6 @@
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <el-avatar :size="32">{{ headerConfig.userInfo && headerConfig.userInfo.username ? headerConfig.userInfo.username.slice(0, 1) : '' }}</el-avatar>
         </div>
     </div>
 </template>
@@ -181,12 +181,12 @@ onMounted(() => {
         display: flex;
         height: 100%;
         align-items: center;
-        padding-right: 20px;
+        // padding-right: 20px;
         .el-dropdown-link {
             cursor: default;
         }
         .el-dropdown {
-            margin-right: 12px;
+            margin-right: 20px;
         }
         .el-avatar {
             background-color: $--app-primary-color;

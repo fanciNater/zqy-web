@@ -1,7 +1,86 @@
 <template>
-    <div>提交日志</div>
+    <div id="content" class="publish-log">
+        123
+        <pre
+            ref="preContentRef"
+            v-if="logMsg"
+            @mousewheel="mousewheelEvent"
+            >{{ logMsg }}</pre
+        >
+    </div>
 </template>
 
 <script lang="ts" setup>
+import { nextTick, onMounted, onUnmounted, ref, defineExpose } from 'vue'
+import { GetSubmitLogData } from '@/services/workflow.service'
 
+const logMsg = ref('')
+const position = ref(false)
+const timer = ref(null)
+const preContentRef = ref(null)
+
+function initData(id: string): void {
+    debugger
+    getLogData(id)
+    if (!timer.value) {
+        timer.value = setInterval(()=>{
+            getLogData(id);
+        }, 3000);
+    }
+}
+
+// 获取日志
+function getLogData(id: string) {
+    debugger
+    if (!id) {
+        logMsg.value = ''
+        return
+    }
+    GetSubmitLogData({
+        instanceId: id
+    }).then((res: any) => {
+        logMsg.value = res.data.log
+        if (position.value) {
+            nextTick(() => {
+                scrollToButtom();
+            });
+        }
+    }).catch((error: any) => {
+        logMsg.value = ''
+    })
+}
+
+function scrollToButtom() {
+    if (preContentRef.value) {
+        document.getElementById('content').scrollTop = preContentRef.value.scrollHeight // 滚动高度
+    }
+}
+
+function mousewheelEvent(e: any) {
+    if (!(e.deltaY > 0)) {
+        position.value = false;
+    }
+}
+
+onUnmounted(() => {
+    if (timer.value) {
+        clearInterval(timer.value)
+    }
+    timer.value = null
+})
+
+defineExpose({
+    initData
+});
 </script>
+
+<style lang="scss">
+.publish-log {
+    pre {
+        color: $--app-base-font-color;
+        font-size: 12px;
+        line-height: 21px;
+        margin: 0;
+    }
+}
+</style>

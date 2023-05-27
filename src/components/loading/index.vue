@@ -120,7 +120,7 @@ function handleReflesh() {
             position: absolute;
             transform: translate(-50%, -50%);
     
-            color: #5794f2;
+            color: $--app-primary-color;
             font-size: 10px;
             width: 1em;
             height: 1em;
@@ -142,10 +142,16 @@ function handleReflesh() {
         transform: translate(-50%, -50%);
         margin-top: 58px;
         font-size: 12px;
-        color: #5794f2;
-        // margin-left: 4px;
+        color: $--app-primary-color;
     }
     .zqy-loading-network-error {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 8px;
+        right: 8px;
+        background-color: $--app-header-bgColor;
+        z-index: 100;
         display: flex;
         align-items: center;
         flex-direction: column;
@@ -157,7 +163,9 @@ function handleReflesh() {
             width: auto;
         }
         .zqy-loading-error-text {
-            color: #b2b2b2;
+            color: $--app-info-color;
+            display: flex;
+            align-items: center;
         }
         .zqy-loading-refresh-btn {
             font-size: 12px;

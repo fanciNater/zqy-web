@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, defineExpose, ref, nextTick } from "vue";
-import BlockModal from "@/components/block-modal/index.vue";
-import { ElMessage } from "element-plus";
+import { reactive, defineExpose, ref, nextTick } from 'vue'
+import BlockModal from '@/components/block-modal/index.vue'
+import { ElMessage } from 'element-plus'
 
 const callback = ref<any>();
 const fileData = ref(null)

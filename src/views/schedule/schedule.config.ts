@@ -47,18 +47,20 @@ export const colConfigs: colConfig[] = [
     {
         prop: "id",
         title: "实例编码",
-        minWidth: 125,
+        minWidth: 158,
         showOverflowTooltip: true
     },
     {
         prop: "workName",
         title: "作业",
-        minWidth: 110
+        minWidth: 120,
+        showOverflowTooltip: true
     },
     {
-        prop: "workType",
+        prop: "instanceType",
         title: "类型",
-        minWidth: 110
+        minWidth: 110,
+        customSlot: 'instanceTypeTag'
     },
     {
         prop: "status",
@@ -69,17 +71,17 @@ export const colConfigs: colConfig[] = [
     {
         prop: "execStartDateTime",
         title: "执行时间",
-        minWidth: 120
+        minWidth: 140
     },
     {
         prop: "execEndDateTime",
         title: "结束时间",
-        minWidth: 120
+        minWidth: 140
     },
     {
         prop: "nextPlanDateTime",
         title: "下次计划时间",
-        minWidth: 120
+        minWidth: 140
     },
     {
         title: '操作',

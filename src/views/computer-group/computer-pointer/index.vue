@@ -18,11 +18,11 @@
                     :maxlength="200"
                     clearable
                     @input="inputEvent"
-                    @keyup.enter="initData"
+                    @keyup.enter="initData(false)"
                 />
             </div>
         </div>
-        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData">
+        <LoadingPage :visible="loading" :networkError="networkError" @loading-refresh="initData(false)">
             <div class="zqy-table">
                 <BlockTable
                     :tableConfig="tableConfig"
@@ -85,13 +85,13 @@ const networkError = ref(false)
 const addModalRef = ref(null)
 
 function initData(tableLoading?: boolean) {
-    loading.value = true
+    loading.value = tableLoading ? false : true
     networkError.value = networkError.value || false;
     GetComputerPointData({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
-        searchContent: keyword.value,
-        calculateEngineId: route.query.id
+        searchKeyWord: keyword.value,
+        clusterId: route.query.id
     }).then((res: any) => {
         tableConfig.tableData = res.data.content
         tableConfig.pagination.total = res.data.totalElements
@@ -103,7 +103,7 @@ function initData(tableLoading?: boolean) {
         tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
-        networkError.value = false
+        networkError.value = true
     });
 }
 
@@ -133,7 +133,7 @@ function installData(data: any) {
     }).then((res: any) => {
         ElMessage.success(res.msg)
         data.installLoading = false
-        initData()
+        initData(true)
     }).catch((error: any) => {
         data.installLoading = false
     })
@@ -147,7 +147,7 @@ function uninstallData(data: any) {
     }).then((res: any) => {
         ElMessage.success(res.msg)
         data.uninstallLoading = false
-        initData()
+        initData(true)
     }).catch((error: any) => {
         data.uninstallLoading = false
     })
@@ -161,7 +161,7 @@ function checkData(data: any) {
     }).then((res: any) => {
         data.checkLoading = false
         ElMessage.success(res.msg)
-        initData()
+        initData(true)
     }).catch((error: any) => {
         data.checkLoading = false
     })
@@ -192,12 +192,12 @@ function inputEvent(e: string) {
 
 function handleSizeChange(e: number) {
     tableConfig.pagination.pageSize = e;
-    initData(true)
+    initData()
 }
 
 function handleCurrentChange(e: number) {
     tableConfig.pagination.currentPage = e;
-    initData(true)
+    initData()
 }
 
 onMounted(() => {

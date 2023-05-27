@@ -89,7 +89,7 @@ function initData(tableLoading?: boolean) {
     GetWorkflowDetailList({
         page: tableConfig.pagination.currentPage - 1,
         pageSize: tableConfig.pagination.pageSize,
-        searchContent: keyword.value,
+        searchKeyWord: keyword.value,
         workflowId: route.query.id
     }).then((res: any) => {
         tableConfig.tableData = res.data.content
@@ -102,7 +102,7 @@ function initData(tableLoading?: boolean) {
         tableConfig.pagination.total = 0
         loading.value = false
         tableConfig.loading = false
-        networkError.value = false
+        networkError.value = true
     });
 }
 

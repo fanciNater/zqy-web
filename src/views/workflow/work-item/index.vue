@@ -1,10 +1,10 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-04-27 16:57:57
- * @LastEditTime: 2023-05-03 21:38:13
+ * @LastEditTime: 2023-05-27 15:52:46
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
- * @FilePath: /zqy-web/src/views/computer-group/computer-pointer/index.vue
+ * @FilePath: /zqy-web/src/views/workflow/work-item/index.vue
 -->
 <template>
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
@@ -22,7 +22,7 @@
                             <el-icon v-else class="is-loading"><Loading /></el-icon>
                             <span class="btn-text">运行</span>
                         </div>
-                        <div class="btn-box" @click="terWorkData">
+                        <div v-if="workConfig.workType === 'SPARK_SQL'" class="btn-box" @click="terWorkData">
                             <el-icon v-if="!terLoading"><Close /></el-icon>
                             <el-icon v-else class="is-loading"><Loading /></el-icon>
                             <span class="btn-text">中止</span>
@@ -47,12 +47,12 @@
                 </div>
                 <div class="log-show">
                     <el-tabs v-model="activeName" @tab-change="tabChangeEvent">
-                        <el-tab-pane v-for="tab in tabList" :key="tab.code" :label="tab.name" :name="tab.code">
-                            <component :is="activeName"></component>
-                            <!-- <PublishLog ref="publishLogRef" v-if="tab.code === 'publish-log'"></PublishLog> -->
-                            <!-- <ReturnData v-if="tab.code === 'return-data'"></ReturnData> -->
-                        </el-tab-pane>
+                        <template v-for="tab in tabList" :key="tab.code">
+                            <el-tab-pane v-if="!tab.hide" :label="tab.name" :name="tab.code">
+                            </el-tab-pane>
+                        </template>
                     </el-tabs>
+                    <component ref="containerInstanceRef" class="show-container" :is="currentTab"></component>
                 </div>
             </div>
         </LoadingPage>
@@ -61,16 +61,19 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, getCurrentInstance, onMounted, markRaw } from 'vue'
+import { reactive, ref, onMounted, markRaw } from 'vue'
 import Breadcrumb from '@/layout/bread-crumb/index.vue'
 import LoadingPage from '@/components/loading/index.vue'
 import ConfigModal from './config-modal/index.vue'
 import PublishLog from './publish-log.vue'
 import ReturnData from './return-data.vue'
+import RunningLog from './running-log.vue'
+import TotalDetail from './total-detail.vue'
 
 import { GetWorkItemConfig, RunWorkItemConfig, SaveWorkItemConfig, TerWorkItemConfig } from '@/services/workflow.service'
-import { ElMessage, ElMessageBox } from "element-plus"
+import { ElMessage } from "element-plus"
 import { useRoute, useRouter } from 'vue-router'
+import { nextTick } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,13 +83,15 @@ const runningLoading = ref(false)
 const saveLoading = ref(false)
 const terLoading = ref(false)
 const configModalRef = ref(null)
-const activeName = ref(null)
+const activeName = ref()
+const currentTab = ref()
 const sqltextData = ref('')
+const instanceId = ref('')
 
-// 日志实例
-const publishLogRef = ref(null)
+const containerInstanceRef = ref(null)
 
 let workConfig = reactive({
+    clusterId: '',
     datasourceId: '',
     name: '',
     sql: '',
@@ -116,11 +121,23 @@ const breadCrumbList = reactive([
 const tabList = reactive([
     {
         name: '提交日志',
-        code: 'publish-log'
+        code: 'PublishLog',
+        hide: false
     },
     {
         name: '数据返回',
-        code: 'return-data'
+        code: 'ReturnData',
+        hide: false
+    },
+    {
+        name: '运行日志',
+        code: 'RunningLog',
+        hide: true
+    },
+    {
+        name: '监控信息',
+        code: 'TotalDetail',
+        hide: true
     }
 ])
 
@@ -132,6 +149,13 @@ function initData() {
     }).then((res: any) => {
         workConfig = res.data
         sqltextData.value = res.data.sqlScript
+        if (workConfig.workType === 'SPARK_SQL') {
+            tabList.forEach((item: any) => {
+                if (['RunningLog', 'TotalDetail'].includes(item.code)) {
+                    item.hide = false
+                }
+            })
+        }
         loading.value = false
         networkError.value = false
     }).catch(() => {
@@ -142,10 +166,16 @@ function initData() {
 
 function tabChangeEvent(e: string) {
     const lookup = {
-        PublishLog,
-        ReturnData
+        PublishLog: PublishLog,
+        ReturnData: ReturnData,
+        RunningLog: RunningLog,
+        TotalDetail: TotalDetail,
     }
-    activeName.value = markRaw(lookup[e])
+    activeName.value = e
+    currentTab.value = markRaw(lookup[e])
+    nextTick(() => {
+        containerInstanceRef.value.initData(instanceId.value)
+    })
 }
 
 // 返回
@@ -165,11 +195,10 @@ function runWorkData() {
         workId: route.query.id
     }).then((res: any) => {
         runningLoading.value = false
-        // workConfig.applicationId = res.data.applicationId
-        workConfig.applicationId = res.data.instanceId
+        instanceId.value = res.data.instanceId
         ElMessage.success(res.msg)
         initData()
-        publishLogRef.value.initData(res.data.instanceId)
+        containerInstanceRef.value.initData(instanceId.value)
     }).catch((error: any) => {
         runningLoading.value = false
     })
@@ -177,14 +206,14 @@ function runWorkData() {
 
 // 终止
 function terWorkData() {
-    if (!workConfig.applicationId) {
+    if (!instanceId.value) {
         ElMessage.warning('暂无可中止的作业')
         return
     }
     terLoading.value = true
     TerWorkItemConfig({
         workId: route.query.id,
-        applicationId: workConfig.applicationId
+        instanceId: instanceId.value
     }).then((res: any) => {
         terLoading.value = false
         ElMessage.success(res.msg)
@@ -231,6 +260,8 @@ function setConfigData() {
 
 onMounted(() => {
     initData()
+    activeName.value = 'PublishLog'
+    currentTab.value = markRaw(PublishLog)
 })
 </script>
 
@@ -276,11 +307,15 @@ onMounted(() => {
                     font-size: $--app-small-font-size;
                 }
                 .el-tabs__content {
-                    height: calc(100vh - 420px);
+                    height: 0;
                 }
                 .el-tabs__nav-scroll {
                     border-bottom: 1px solid $--app-border-color;
                 }
+            }
+            .show-container {
+                height: calc(100vh - 420px);
+                overflow: auto;
             }
         }
     }

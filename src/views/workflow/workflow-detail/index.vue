@@ -1,10 +1,10 @@
 <!--
  * @Author: fanciNate
  * @Date: 2023-04-27 16:57:57
- * @LastEditTime: 2023-05-03 21:38:13
+ * @LastEditTime: 2023-05-27 14:58:39
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
- * @FilePath: /zqy-web/src/views/computer-group/computer-pointer/index.vue
+ * @FilePath: /zqy-web/src/views/workflow/workflow-detail/index.vue
 -->
 <template>
     <Breadcrumb :breadCrumbList="breadCrumbList"></Breadcrumb>
@@ -34,9 +34,10 @@
                     </template>
                     <template v-slot:statusTag="scopeSlot">
                         <div class="btn-group">
-                            <el-tag v-if="scopeSlot.row.status === 'ACTIVE'" class="ml-2" type="success">可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NO_ACTIVE'" class="ml-2" type="danger">不可用</el-tag>
-                            <el-tag v-if="scopeSlot.row.status === 'NEW'">新建</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'PUBLISHED'" class="ml-2" type="success">已发布</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'STOP'" class="ml-2" type="danger">下线</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'PAUSED'" class="ml-2" type="warning">已暂停</el-tag>
+                            <el-tag v-if="scopeSlot.row.status === 'UN_PUBLISHED'">未发布</el-tag>
                         </div>
                     </template>
                     <template v-slot:options="scopeSlot">

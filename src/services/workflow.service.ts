@@ -1,10 +1,10 @@
 /*
  * @Author: fanciNate
  * @Date: 2023-04-26 17:01:16
- * @LastEditTime: 2023-05-03 21:36:23
+ * @LastEditTime: 2023-05-27 15:53:47
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
- * @FilePath: /zqy-web/src/services/computer-group.service.ts
+ * @FilePath: /zqy-web/src/services/workflow.service.ts
  */
 import { http } from '@/utils/http';
 interface SerchParams {
@@ -115,7 +115,7 @@ export function RunWorkItemConfig(params: any): Promise<any> {
 // 作业-详情-终止
 export function TerWorkItemConfig(params: any): Promise<any> {
     return http.request({
-        method: 'post',
+        method: 'get',
         url: '/wok/stopJob',
         params: params
     })
@@ -135,6 +135,15 @@ export function GetSubmitLogData(params: any): Promise<any> {
     return http.request({
         method: 'get',
         url: '/wok/getSubmitLog',
+        params: params
+    })
+}
+
+// 作业-详情-监控信息
+export function GetResultItemDetail(params: any): Promise<any> {
+    return http.request({
+        method: 'get',
+        url: '/wok/getStatus',
         params: params
     })
 }

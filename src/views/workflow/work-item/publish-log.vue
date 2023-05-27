@@ -1,18 +1,27 @@
+<!--
+ * @Author: fanciNate
+ * @Date: 2023-05-26 16:35:28
+ * @LastEditTime: 2023-05-27 15:27:36
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/src/views/workflow/work-item/publish-log.vue
+-->
 <template>
     <div id="content" class="publish-log">
-        123
         <pre
             ref="preContentRef"
             v-if="logMsg"
             @mousewheel="mousewheelEvent"
             >{{ logMsg }}</pre
         >
+        <EmptyPage v-else></EmptyPage>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { nextTick, onMounted, onUnmounted, ref, defineExpose } from 'vue'
 import { GetSubmitLogData } from '@/services/workflow.service'
+import EmptyPage from '@/components/empty-page'
 
 const logMsg = ref('')
 const position = ref(false)
@@ -20,7 +29,6 @@ const timer = ref(null)
 const preContentRef = ref(null)
 
 function initData(id: string): void {
-    debugger
     getLogData(id)
     if (!timer.value) {
         timer.value = setInterval(()=>{
@@ -31,9 +39,7 @@ function initData(id: string): void {
 
 // 获取日志
 function getLogData(id: string) {
-    debugger
     if (!id) {
-        logMsg.value = ''
         return
     }
     GetSubmitLogData({
@@ -52,7 +58,7 @@ function getLogData(id: string) {
 
 function scrollToButtom() {
     if (preContentRef.value) {
-        document.getElementById('content').scrollTop = preContentRef.value.scrollHeight // 滚动高度
+        document.getElementById('content').scrollTop = preContentRef.value?.scrollHeight // 滚动高度
     }
 }
 
@@ -78,9 +84,12 @@ defineExpose({
 .publish-log {
     pre {
         color: $--app-base-font-color;
-        font-size: 12px;
+        font-size: $--app-small-font-size;
         line-height: 21px;
         margin: 0;
+    }
+    .empty-page {
+        height: 50%;
     }
 }
 </style>

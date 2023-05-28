@@ -1,3 +1,11 @@
+<!--
+ * @Author: fanciNate
+ * @Date: 2023-05-23 07:25:46
+ * @LastEditTime: 2023-05-28 22:15:37
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/src/views/home/index.vue
+-->
 <template>
     <div class="zqy-home">
         <Header></Header>
@@ -41,7 +49,7 @@ const select = (e: string) => {
 }
 
 onMounted(() => {
-    const menuList = menuListData.filter(menu => menu.authType?.includes(state.role.value))
+    const menuList = menuListData.filter(menu => menu.authType?.includes(state.role.value || 'ROLE_TENANT_MEMBER'))
     if (!state.currentMenu.value) {
         defaultMenu.value = menuList[0].code
         router.push({ name: defaultMenu.value })

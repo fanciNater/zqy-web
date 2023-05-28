@@ -1,3 +1,11 @@
+/*
+ * @Author: fanciNate
+ * @Date: 2023-05-23 07:25:46
+ * @LastEditTime: 2023-05-27 16:21:16
+ * @LastEditors: fanciNate
+ * @Description: In User Settings Edit
+ * @FilePath: /zqy-web/vue.config.js
+ */
 /* eslint-disable @typescript-eslint/no-var-requires */
 'use strict'
 const path = require('path')
@@ -10,12 +18,13 @@ const isProd = () => {
     return process.env.NODE_ENV === 'production'
 }
 module.exports = {
-    publicPath: '/',
+    publicPath: process.env.VUE_APP_PUBLIC_PATH,
     lintOnSave: isProd(),
     productionSourceMap: false,
     transpileDependencies: [],
+    outputDir: 'dist', // 输出文件目录
+    assetsDir: 'static', // 放置静态资源
     devServer: {
-    // open: process.platform === 'darwin',
         open: false,
         host: '0.0.0.0',
         port: '8083',

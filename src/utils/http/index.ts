@@ -1,7 +1,7 @@
 /*
  * @Author: fanciNate
  * @Date: 2023-05-23 17:00:06
- * @LastEditTime: 2023-05-23 20:35:45
+ * @LastEditTime: 2023-05-27 16:12:11
  * @LastEditors: fanciNate
  * @Description: In User Settings Edit
  * @FilePath: /zqy-web/src/utils/http/index.ts
@@ -31,7 +31,8 @@ export const httpOption = {
         }
     },
     requestOptions: {
-        urlPrefix: 'http://isxcode.com:30211',
+        // urlPrefix: 'http://isxcode.com:30211',
+        urlPrefix: process.env.VUE_APP_BASE_DOMAIN,
         showSuccessMessage: (msg: string): void => {
             message.success(msg)
         },
